@@ -6,7 +6,7 @@ import os
 import shutil
 from types import MethodType
 
-from helpers.logger import setup_logger
+from zpui_lib.helpers.logger import setup_logger
 logger = setup_logger(__name__, "warning")
 
 def read_config(config_path):

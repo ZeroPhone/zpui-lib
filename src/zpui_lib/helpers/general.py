@@ -9,7 +9,7 @@ def local_path_gen(_name_):
 
     .. code-block:: python
 
-        from helpers import local_path_gen
+        from zpui_lib.helpers import local_path_gen
         local_path = local_path_gen(__name__)
         ...
         config_path = local_path("config.json")
