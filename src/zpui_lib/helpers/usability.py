@@ -1,7 +1,6 @@
-from __future__ import print_function
 from threading import Event
 
-class ExitHelper(object):
+class ExitHelper:
     """
     A simple helper for loops, to allow exiting them on pressing KEY_LEFT (or other keys).
 

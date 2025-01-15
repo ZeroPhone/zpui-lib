@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-from __future__ import print_function
 
 import json
 import os
@@ -10,7 +9,7 @@ from zpui_lib.helpers.logger import setup_logger
 logger = setup_logger(__name__, "warning")
 
 def read_config(config_path):
-    with open(config_path, 'r') as f:
+    with open(config_path) as f:
         data = json.load(f)
     return data
 
@@ -55,7 +54,7 @@ def read_or_create_config(config_path, default_config, app_name):
     """
     try:
         config_obj = read_config(config_path)
-    except (ValueError, IOError):
+    except (ValueError, OSError):
         logger.warning("{}: broken/nonexistent config, restoring with defaults...".format(app_name))
         if os.path.exists(config_path):
             new_path = move_faulty_config_to_new_path(config_path)

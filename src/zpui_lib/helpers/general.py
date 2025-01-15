@@ -54,7 +54,7 @@ def flatten(foo, restrict=None):
 
 
 # noinspection PyTypeChecker,PyArgumentList
-class Singleton(object):
+class Singleton:
     _instance = None
 
     def __new__(cls, *args, **kwargs):

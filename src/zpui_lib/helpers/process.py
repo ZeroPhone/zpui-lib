@@ -6,7 +6,7 @@ import subprocess
 import time
 from select import select
 
-class ProHelper(object):
+class ProHelper:
     """
     A helper class for keeping track of long-running processes. It launches the process
     in background, receives output from it, sends input to it. It also can emulate an
