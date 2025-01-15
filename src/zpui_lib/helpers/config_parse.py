@@ -37,7 +37,7 @@ def read_or_create_config(config_path, default_config, app_name):
     >>> print('{"configtype":"sample", "version":1}', file=open('/tmp/a_valid_config_file',"w"))
     >>> c = read_or_create_config("/tmp/a_valid_config_file", '{"default_config":true}', "test_runner")
     >>> c['configtype']
-    u'sample'
+    'sample'
     >>> c['default_config']
     True
 
