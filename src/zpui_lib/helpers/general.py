@@ -42,9 +42,11 @@ def safely_backup_file(dir, fname, new_dir = None, fmt = "{0}_old{1}"):
     os.move(current_path, new_path)
     return new_path
 
-def flatten(foo):
+def flatten(foo, restrict=None):
+    if not restrict or foo not in restrict:
+        return foo
     for x in foo:
-        if hasattr(x, '__iter__'):
+        if hasattr(x, '__iter__') and (not restrict or x not in restrict):
             for y in flatten(x):
                 yield y
         else:
@@ -59,3 +61,27 @@ class Singleton(object):
         if not isinstance(cls._instance, cls):
             cls._instance = object.__new__(cls, *args, **kwargs)
         return cls._instance
+
+"""
+if __name__ == "__main__":
+    new_paths = []
+    dir = "/tmp/"
+    fname = "zpui_sbf_test_fname"
+    for i in range(1, 10):
+        # call the function 10 times
+        path = os.path.join(dir, fname)
+        with open(path, "w") as f:
+            f.write(str(i))
+        safely_backup_file(dir, fname)
+    for i in range(1, 10):
+        # check that all 10 files are there and the contents match
+        files = 
+        full_paths
+        
+        with open()
+            c = f.read()
+            
+    # cleanup
+    for path in new_paths:
+        os.remove(path)
+"""
