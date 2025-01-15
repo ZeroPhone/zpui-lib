@@ -22,6 +22,25 @@ def local_path_gen(_name_):
         return os.path.join(app_path, *path)
     return local_path
 
+def safely_backup_file(dir, fname, new_dir = None, fmt = "{0}_old{1}"):
+    """This function lets you safely backup a user's file that you want to move.
+    It does this by adding an integer suffix to the target filename,
+    and increments that suffix until it's assured that the move target path does not yet exist,
+    as long as necessary. This ensures that, whatever file you move, there's always a backup.
+
+    You can pass the filename format string to it, (0:old filename, 1:integer),
+    as well as a new directory for the file to be saved into.
+    """
+    if not new_dir: new_dir = dir
+    current_path = os.path.join(dir, fname)
+    i = 1
+    new_fname = fmt.format(fname, i)
+    while new_fname in os.listdir(new_dir):
+        i += 1
+        new_fname = fmt.format(fname, i)
+    new_path = os.path.join(new_dir, new_fname)
+    os.move(current_path, new_path)
+    return new_path
 
 def flatten(foo):
     for x in foo:
