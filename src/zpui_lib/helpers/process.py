@@ -37,6 +37,14 @@ class ProHelper(object):
         else:
             raise NotImplementedException
 
+    def reset(self, kill=True):
+        """
+        Kills the process if it's running, then clears any variables needed
+        """
+        if kill and self.process and self.is_ongoing():
+            self.process.terminate()
+        pass # variable clear will be inserted here
+
     def output_available(self, timeout=0.1):
         """
         Returns True if there is output from the command that
@@ -70,7 +78,7 @@ class ProHelper(object):
             output.append(data)
             if data == until:
                 break
-        return "".join(output)
+        return b"".join(output)
 
     def readall(self, timeout=0, readsize=1):
         """
@@ -82,12 +90,13 @@ class ProHelper(object):
         while self.output_available():
             data = self.read(readsize, timeout)
             output.append(data)
-        return "".join(output)
+        return b"".join(output)
 
     def write(self, data):
         """
         Sends input to the process.
         """
+        if isinstance(data, str): data = data.encode("ascii")
         if self.use_terminal:
             return os.write(self.terminal, data)
         else:
@@ -142,7 +151,7 @@ class ProHelper(object):
         The default function used for processing output from the command.
         For now, it simply sends the data to ``sys.stdout``.
         """
-        sys.stdout.write(data)
+        sys.stdout.write(data.decode("ascii"))
         sys.stdout.flush()
 
     def kill_process(self):
@@ -195,6 +204,7 @@ class TestProHelper(unittest.TestCase):
         ph.run_in_foreground()
         assert(ph.output_available())
         output = ph.readall(timeout=5, readsize=1024)
+        if isinstance(output, bytes): output = output.decode("ascii")
         assert(output.strip() == "hello")
         assert(ph.get_return_code() == 0)
 
