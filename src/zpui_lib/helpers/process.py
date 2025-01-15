@@ -15,6 +15,7 @@ class ProHelper(object):
     """
 
     process = None
+    default_read_size = 1024
 
     def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None):
         self.command = command
@@ -55,11 +56,13 @@ class ProHelper(object):
         else:
             raise NotImplementedException
 
-    def read(self, size, timeout=None):
+    def read(self, size=None, timeout=None):
         """
         Reads output from the process, limited by size (with an optional
         timeout).
         """
+        if size is None:
+            size = self.default_read_size
         if self.use_terminal:
             s = select([self.terminal], [], [], timeout)[0]
             if s:
@@ -80,14 +83,14 @@ class ProHelper(object):
                 break
         return b"".join(output)
 
-    def readall(self, timeout=0, readsize=1):
+    def readall(self, timeout=0, oa_timeout=0.1, readsize=1):
         """
         Reads all available output from the process. Timeout is 0 by default,
         meaning that function will return immediately (unless output is a constant
         stream of data, in which case it's best if you use ``readall_or_until``.
         """
         output = []
-        while self.output_available():
+        while self.output_available(timeout=oa_timeout):
             data = self.read(readsize, timeout)
             output.append(data)
         return b"".join(output)
@@ -126,17 +129,17 @@ class ProHelper(object):
         self.thread.daemon = True
         self.thread.start()
 
-    def poll(self, **read_kw):
+    def poll(self, do_read=True, **read_kw):
         """
         This function polls the process for output (and relays it into the callback),
         as well as polls whether the process is finished.
         """
         if self.process:
             self.process.poll()
-            if callable(self.output_callback):
+            if do_read and callable(self.output_callback):
                 self.relay_output(**read_kw)
 
-    def relay_output(self, read_type="readall", read_kw={}):
+    def relay_output(self, read_type="readall", **read_kw):
         """
         This method checks if there's output waiting to be read; if there is,
         it reads all of it and sends it to the output callback.
@@ -178,8 +181,8 @@ class ProHelper(object):
         self.process.poll()
         return self.process.returncode is None
 
-    def dump_info(self):
-        self.poll()
+    def dump_info(self, **poll_kw):
+        self.poll(**poll_kw)
         ongoing = self.is_ongoing()
         info = {"command":self.command, "is_ongoing":ongoing, "return_code":None,
                 "cwd":self.cwd, "shell":self.shell, "use_terminal":self.use_terminal,
@@ -229,19 +232,36 @@ class TestProHelper(unittest.TestCase):
         ph.poll()
         assert(not ph.is_ongoing())
 
-    @unittest.skip("No idea how to implement this properly without making test running even more long")
     def test_input(self):
-        ph = ProHelper(["python", "-c", "raw_input('hello')"], use_terminal=True)
+        ph = ProHelper(["python", "-c", "input('hello')"], use_terminal=True)
         ph.run()
         ph.poll()
+        # up to 10 seconds wait for print
+        for i in range(100):
+            ph.poll()
+            output = ph.readall(timeout=5, readsize=1024)
+            if output:
+                break
+            if not ph.is_ongoing():
+                raise Exception("unexpected exit!")
+            time.sleep(0.1)
+            if i == 99:
+                raise Exception("taking too long to print!")
         assert(ph.is_ongoing())
         ph.write('\n')
-        output = ph.readall(timeout=5, readsize=1024)
         ph.poll()
-        ph.read(1)
-        print(repr(output))
-        assert(not ph.is_ongoing())
+        ph.read(1) # reading the \n
+        if isinstance(output, bytes): output = output.decode("ascii")
         assert(output.strip() == "hello")
+        #print(repr(output))
+        for i in range(100):
+            ph.poll()
+            if not ph.is_ongoing():
+                break
+            time.sleep(0.1)
+            if i == 99:
+                raise Exception("taking too long to exit!")
+        assert(not ph.is_ongoing())
 
 
 if __name__ == '__main__':
