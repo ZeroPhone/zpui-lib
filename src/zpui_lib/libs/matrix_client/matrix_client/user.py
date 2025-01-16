@@ -18,7 +18,7 @@ from .checks import check_user_id
 from .device import Device
 
 
-class User(object):
+class User:
     """ The User class can be used to call user specific functions.
     """
     def __init__(self, client, user_id, displayname=None):

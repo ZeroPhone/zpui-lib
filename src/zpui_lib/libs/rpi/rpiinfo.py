@@ -1,5 +1,5 @@
 def get_model_str(model_file = "/sys/firmware/devicetree/base/model"):
-    with open(model_file, 'r') as f:
+    with open(model_file) as f:
         return f.read().strip()
 
 def is_pi_zero(f_c = None):

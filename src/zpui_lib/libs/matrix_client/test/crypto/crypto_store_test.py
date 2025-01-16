@@ -12,7 +12,7 @@ from matrix_client.room import Room
 from matrix_client.user import User
 
 
-class TestCryptoStore(object):
+class TestCryptoStore:
 
     # Initialise a store and test some init code
     device_id = 'AUIETSRN'

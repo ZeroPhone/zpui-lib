@@ -9,7 +9,7 @@ from ..matrix_client.device import Device
 HOSTNAME = 'http://localhost'
 
 
-class TestDevice(object):
+class TestDevice:
 
     cli = MatrixClient(HOSTNAME)
     user_id = '@test:localhost'

@@ -7,7 +7,7 @@ def may_be_param_line(line):
     return "=" in line
 
 def read_config(path = "/boot/config.txt"):
-    with open(path, "r") as f:
+    with open(path) as f:
         return f.read()
 
 def write_config(output, path = "/boot/config.txt"):

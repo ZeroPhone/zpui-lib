@@ -46,7 +46,7 @@ CACHE.ALL = CACHE(1)
 # User, Room, etc. classes at all.
 
 
-class MatrixClient(object):
+class MatrixClient:
     """
     The client API for Matrix. For the raw HTTP calls, see MatrixHttpApi.
 

@@ -34,7 +34,7 @@ def get_dkms_status_info():
         if ':' in line: #simple sanity check
             info, status = line.rsplit(':', 1)
             status = status.strip(' ')
-            name, version, uname, arch = [el.strip(' ') for el in info.split(',')]
+            name, version, uname, arch = (el.strip(' ') for el in info.split(','))
             answer.append({"status":status, "name":name, "version":version,
                            "uname":uname, "arch":arch })
     return answer

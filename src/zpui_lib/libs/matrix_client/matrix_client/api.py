@@ -31,7 +31,7 @@ except ImportError:
 MATRIX_V2_API_PATH = "/_matrix/client/r0"
 
 
-class MatrixHttpApi(object):
+class MatrixHttpApi:
     """Contains all raw Matrix HTTP Client-Server API calls.
 
     For room and sync handling, consider using MatrixClient.
@@ -255,7 +255,7 @@ class MatrixHttpApi(object):
             state_key(str): Optional. The state key for the event.
             timestamp (int): Set origin_server_ts (For application services only)
         """
-        path = "/rooms/%s/state/%s" % (
+        path = "/rooms/{}/state/{}".format(
             quote(room_id), quote(event_type),
         )
         if state_key:
@@ -291,7 +291,7 @@ class MatrixHttpApi(object):
         if not txn_id:
             txn_id = self._make_txn_id()
 
-        path = "/rooms/%s/send/%s/%s" % (
+        path = "/rooms/{}/send/{}/{}".format(
             quote(room_id), quote(event_type), quote(str(txn_id)),
         )
         params = {}
@@ -312,7 +312,7 @@ class MatrixHttpApi(object):
         if not txn_id:
             txn_id = self._make_txn_id()
 
-        path = '/rooms/%s/redact/%s/%s' % (
+        path = '/rooms/{}/redact/{}/{}'.format(
             room_id, event_id, txn_id
         )
         content = {}
@@ -575,7 +575,7 @@ class MatrixHttpApi(object):
         """
         return self._send(
             "GET",
-            "/rooms/%s/state/m.room.member/%s" % (room_id, user_id)
+            "/rooms/{}/state/m.room.member/{}".format(room_id, user_id)
         )
 
     def set_membership(self, room_id, user_id, membership, reason="", profile=None,
@@ -632,13 +632,13 @@ class MatrixHttpApi(object):
     def get_user_tags(self, user_id, room_id):
         return self._send(
             "GET",
-            "/user/%s/rooms/%s/tags" % (user_id, room_id),
+            "/user/{}/rooms/{}/tags".format(user_id, room_id),
         )
 
     def remove_user_tag(self, user_id, room_id, tag):
         return self._send(
             "DELETE",
-            "/user/%s/rooms/%s/tags/%s" % (user_id, room_id, tag),
+            "/user/{}/rooms/{}/tags/{}".format(user_id, room_id, tag),
         )
 
     def add_user_tag(self, user_id, room_id, tag, order=None, body=None):
@@ -650,21 +650,21 @@ class MatrixHttpApi(object):
             body = {}
         return self._send(
             "PUT",
-            "/user/%s/rooms/%s/tags/%s" % (user_id, room_id, tag),
+            "/user/{}/rooms/{}/tags/{}".format(user_id, room_id, tag),
             body,
         )
 
     def set_account_data(self, user_id, type, account_data):
         return self._send(
             "PUT",
-            "/user/%s/account_data/%s" % (user_id, type),
+            "/user/{}/account_data/{}".format(user_id, type),
             account_data,
         )
 
     def set_room_account_data(self, user_id, room_id, type, account_data):
         return self._send(
             "PUT",
-            "/user/%s/rooms/%s/account_data/%s" % (user_id, room_id, type),
+            "/user/{}/rooms/{}/account_data/{}".format(user_id, room_id, type),
             account_data
         )
 

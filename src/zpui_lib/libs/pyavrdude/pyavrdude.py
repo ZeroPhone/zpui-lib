@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 import heuristics
 
-class ProHelper(object):
+class ProHelper:
     """
     A helper class for keeping track of long-running processes. It launches the process
     in background, receives output from it, sends input to it. It also can emulate an
@@ -144,7 +144,7 @@ class ProHelper(object):
         return self.process.returncode is None
 
 
-class AvrdudeProcess(object):
+class AvrdudeProcess:
 
     default_yn_response = 'n'
 

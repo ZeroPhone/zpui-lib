@@ -24,7 +24,7 @@ from .errors import MatrixRequestError, MatrixNoEncryptionError, UnableToDecrypt
 logger = logging.getLogger(__name__)
 
 
-class Room(object):
+class Room:
     """Call room-specific functions after joining a room from the client.
 
     NOTE: This should ideally be called from within the Client.

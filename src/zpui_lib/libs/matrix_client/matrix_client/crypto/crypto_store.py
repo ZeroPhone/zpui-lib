@@ -14,7 +14,7 @@ from ..device import Device
 logger = logging.getLogger(__name__)
 
 
-class CryptoStore(object):
+class CryptoStore:
     """Manages persistent storage for an OlmDevice.
 
     Args:

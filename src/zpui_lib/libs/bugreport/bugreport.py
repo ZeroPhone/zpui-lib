@@ -9,7 +9,7 @@ import zipfile
 import ssl
 import os
 
-class BugReport(object):
+class BugReport:
 
     ftp_destination = "ftp.zerophone.org"
 

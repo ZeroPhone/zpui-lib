@@ -4,7 +4,7 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 
-class KeySharingManager(object):
+class KeySharingManager:
 
     def __init__(self, api, db, user_id, device_id, olm_device):
         self.api = api

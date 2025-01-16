@@ -1,7 +1,7 @@
 from .errors import MatrixRequestError
 
 
-class Device(object):
+class Device:
     """Represents a Matrix device, belonging to a user.
 
     Args:

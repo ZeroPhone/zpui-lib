@@ -42,7 +42,7 @@ def decrypt_and_read(infile, passphrase):
         ValueError if something went wrong during decryption.
         FileNotFoundError if the file was not found.
     """
-    with open(infile, 'r') as f:
+    with open(infile) as f:
         encrypted_data = f.read()
     encrypted_data = encrypted_data.replace('\n', '')
 
