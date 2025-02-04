@@ -68,6 +68,7 @@ class LoggingConfig(Singleton):
     as well as to change them while ZPUI is running.
     """
 
+    autosave = False
     default_config_sections = ["global"]
 
     def __init__(self, conf_path="log_conf.ini"):
@@ -104,8 +105,9 @@ class LoggingConfig(Singleton):
         Creates the file if it's not found.
         """
         if not os.path.exists(self._config_file_path):
-            open(self._config_file_path, 'a+').close()
-            return
+            if self.autosave:
+                open(self._config_file_path, 'a+').close()
+                return
         config = configparser.ConfigParser()
         config.read(self._config_file_path)
 
@@ -186,4 +188,5 @@ if __name__ == '__main__':
         print(config)
 
     if args.cmd == 'set':
+        config.autosave = True
         config.set_level(args.app_name, args.level)
