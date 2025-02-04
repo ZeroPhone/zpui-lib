@@ -16,14 +16,16 @@ class ProHelper:
 
     process = None
     default_read_size = 1024
+    encoding = "utf-8"
 
-    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None):
+    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None, convert_output=True):
         self.command = command
         self.shell = shell
         self.cwd = cwd
         self.use_terminal = use_terminal
         self.output_callback = output_callback
         self.popen_kwargs = popen_kwargs if popen_kwargs else {}
+        self.convert_output = convert_output
         if self.output_callback == 'print':
             self.output_callback = self.print_output
 
@@ -78,10 +80,15 @@ class ProHelper:
         output = []
         while self.output_available():
             data = self.read(readsize, timeout)
+            if self.convert_output:
+                data = data.decode(self.encoding)
             output.append(data)
             if data == until:
                 break
-        return b"".join(output)
+        if self.convert_output:
+            return "".join(output)
+        else:
+            return b"".join(output)
 
     def readall(self, timeout=0, oa_timeout=0.1, readsize=1):
         """
@@ -92,14 +99,21 @@ class ProHelper:
         output = []
         while self.output_available(timeout=oa_timeout):
             data = self.read(readsize, timeout)
+            if self.convert_output:
+                data = data.decode(self.encoding)
             output.append(data)
-        return b"".join(output)
+        if self.convert_output:
+            return "".join(output)
+        else:
+            return b"".join(output)
 
     def write(self, data):
         """
         Sends input to the process.
         """
-        if isinstance(data, str): data = data.encode("ascii")
+        if isinstance(data, str):
+            # always has to be sent as bytes
+            data = data.encode(self.encoding)
         if self.use_terminal:
             return os.write(self.terminal, data)
         else:
@@ -207,7 +221,7 @@ class TestProHelper(unittest.TestCase):
         ph.run_in_foreground()
         assert(ph.output_available())
         output = ph.readall(timeout=5, readsize=1024)
-        if isinstance(output, bytes): output = output.decode("ascii")
+        #if isinstance(output, bytes): output = output.decode("ascii")
         assert(output.strip() == "hello")
         assert(ph.get_return_code() == 0)
 
@@ -251,7 +265,7 @@ class TestProHelper(unittest.TestCase):
         ph.write('\n')
         ph.poll()
         ph.read(1) # reading the \n
-        if isinstance(output, bytes): output = output.decode("ascii")
+        #if isinstance(output, bytes): output = output.decode("ascii")
         assert(output.strip() == "hello")
         #print(repr(output))
         for i in range(100):
