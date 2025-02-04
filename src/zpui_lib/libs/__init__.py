@@ -1,7 +1,9 @@
 import zpui_lib.libs.lsusb as lsusb
 import zpui_lib.libs.dkms_debug as dkms_debug
 import zpui_lib.libs.dmesg as dmesg
+import zpui_lib.libs.if_info as if_info
 
+import traceback
 try:
     import zpui_lib.libs.systemctl as systemctl
 except:
