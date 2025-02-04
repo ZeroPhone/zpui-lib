@@ -1,4 +1,4 @@
-def zpui_hacks():
+def basestring_hack():
     #Py2-3 hax to make basestring work
     try:
         basestring
