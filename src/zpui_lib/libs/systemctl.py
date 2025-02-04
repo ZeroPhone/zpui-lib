@@ -8,8 +8,25 @@ logger = setup_logger(__name__, "warning")
 # See D-Bus documentation here:
 #     https://www.freedesktop.org/wiki/Software/systemd/dbus/
 
-bus = SystemBus()
-systemd = bus.get(".systemd1")
+bus = None
+systemd = None
+
+def init_bus():
+    global bus, systemd
+    try:
+        bus = SystemBus()
+        systemd = bus.get(".systemd1")
+        logger.info("systemctl library successfuly got system bus")
+    except:
+        # failure to load, leaving things as None
+        logger.warning("systemctl library failed to get system bus")
+        bus = None
+        systemd = None
+
+init_bus()
+
+def bus_acquired():
+    return bus != None and systemd != None
 
 def list_units(unit_filter_field = None, unit_filter_values = []):
     """
