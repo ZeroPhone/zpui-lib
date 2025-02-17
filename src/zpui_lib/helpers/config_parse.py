@@ -8,12 +8,15 @@ from types import MethodType
 from zpui_lib.helpers.logger import setup_logger
 logger = setup_logger(__name__, "warning")
 
+yaml = None
+
 try:
     import yaml
 except ImportError:
-    yaml = None
+    pass
 
 def read_config(config_path):
+    global yaml
     if config_path.endswith(".yaml"):
         if not yaml:
             logger.error("attempted to write {} with {}, but pyyaml library not found!".format(config_path))
