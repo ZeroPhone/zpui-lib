@@ -8,14 +8,34 @@ from types import MethodType
 from zpui_lib.helpers.logger import setup_logger
 logger = setup_logger(__name__, "warning")
 
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
 def read_config(config_path):
-    with open(config_path) as f:
-        data = json.load(f)
-    return data
+    if config_path.endswith(".yaml"):
+        if not yaml:
+            logger.error("attempted to write {} with {}, but pyyaml library not found!".format(config_path))
+            import yaml # raises ImportError
+        with open(config_path) as f:
+            data = yaml.safe_load(f)
+        return data
+    else: #if config_path.endswith(".json"):
+        with open(config_path) as f:
+            data = json.load(f)
+        return data
 
 def write_config(config_dict, config_path):
-    with open(config_path, 'w') as f:
-        json.dump(config_dict, f)
+    if config_path.endswith(".yaml"):
+        if not yaml:
+            logger.error("attempted to write {} with {}, but pyyaml library not found!".format(config_path, config_dict))
+            import yaml # raises ImportError
+        with open(config_path, 'w') as f:
+            yaml.safe_dump(config_dict, f)
+    else: #if config_path.endswith(".json"):
+        with open(config_path, 'w') as f:
+            json.dump(config_dict, f)
 
 def move_faulty_config_to_new_path(config_path, suffix="failed"):
     counter = 1
