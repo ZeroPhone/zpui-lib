@@ -43,10 +43,11 @@ def safely_backup_file(dir, fname, new_dir = None, fmt = "{0}_old{1}"):
     return new_path
 
 def flatten(foo, restrict=None):
-    if not restrict or foo not in restrict:
+    if restrict == None: restrict = []
+    if foo in restrict:
         return foo
     for x in foo:
-        if hasattr(x, '__iter__') and (not restrict or x not in restrict):
+        if hasattr(x, '__iter__') and x not in restrict:
             for y in flatten(x):
                 yield y
         else:
