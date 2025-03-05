@@ -1,1 +1,1 @@
-python3 -B -m pytest --ignore=libs/ofono --ignore=libs/pyavrdude --ignore=libs/dkms_debug.py --ignore=libs/matrix_client/samples
+python3 -B -m pytest --ignore=libs/ofono --ignore=libs/pyavrdude --ignore=libs/dkms_debug.py --ignore=libs/matrix_client/samples  --ignore=libs/matrix_client/setup.py  --ignore=libs/matrix_client/matrix_client/crypto/crypto_store.py --ignore libs/matrix_client/matrix_client/crypto/olm_device.py --ignore libs/matrix_client/matrix_client/crypto/sessions.py --ignore libs/matrix_client/test/crypto/dummy_olm_device.py

@@ -2,6 +2,8 @@ import psutil
 import os
 import sys
 
+import unittest
+
 def local_path_gen(_name_):
     """This function generates a ``local_path`` function you can use
     in your scripts to get an absolute path to a file in your app's
@@ -63,26 +65,18 @@ class Singleton:
             cls._instance = object.__new__(cls)
         return cls._instance
 
-"""
+class TestGeneralHelpers(unittest.TestCase):
+
+    def test_flatten(self):
+        """tests that it runs when a device isn't provided"""
+        f = flatten([[1, 1, 1, 0], [1, 1, 1, 0], [1, 1, 1, 0], [1, 1, 1, 0]])
+        assert(list(f) == [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0])
+        f = flatten([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+        assert(list(f) == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+    def test_local_path_gen(self):
+        local_path = local_path_gen(__name__)
+        assert(local_path("general.py").endswith("general.py"))
+
 if __name__ == "__main__":
-    new_paths = []
-    dir = "/tmp/"
-    fname = "zpui_sbf_test_fname"
-    for i in range(1, 10):
-        # call the function 10 times
-        path = os.path.join(dir, fname)
-        with open(path, "w") as f:
-            f.write(str(i))
-        safely_backup_file(dir, fname)
-    for i in range(1, 10):
-        # check that all 10 files are there and the contents match
-        files = 
-        full_paths
-        
-        with open()
-            c = f.read()
-            
-    # cleanup
-    for path in new_paths:
-        os.remove(path)
-"""
+    unittest.main()
