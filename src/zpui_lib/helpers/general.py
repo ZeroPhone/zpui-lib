@@ -24,7 +24,9 @@ def local_path_gen(_name_):
         return os.path.join(app_path, *path)
     return local_path
 
-def safely_backup_file(dir, fname, new_dir = None, fmt = "{0}_old{1}"):
+def_fmt = "{0}_old{1}"
+
+def get_safe_file_backup_path(dir, fname, new_dir = None, fmt = def_fmt):
     """This function lets you safely backup a user's file that you want to move.
     It does this by adding an integer suffix to the target filename,
     and increments that suffix until it's assured that the move target path does not yet exist,
@@ -41,8 +43,7 @@ def safely_backup_file(dir, fname, new_dir = None, fmt = "{0}_old{1}"):
         i += 1
         new_fname = fmt.format(fname, i)
     new_path = os.path.join(new_dir, new_fname)
-    os.move(current_path, new_path)
-    return new_path
+    return current_path, new_path
 
 def flatten(foo, restrict=None):
     if restrict == None: restrict = []
@@ -77,6 +78,27 @@ class TestGeneralHelpers(unittest.TestCase):
     def test_local_path_gen(self):
         local_path = local_path_gen(__name__)
         assert(local_path("general.py").endswith("general.py"))
+
+    def test_gsfbp(self):
+        new_paths = []
+        test_dir = "/tmp/"
+        fname = "zpui_sbf_test_fname"
+        for i in range(10):
+            # call the function 10 times
+            path = os.path.join(test_dir, fname)
+            with open(path, "w") as f:
+                f.write(str(i))
+            old_path, new_path = get_safe_file_backup_path(test_dir, fname)
+            os.rename(old_path, new_path)
+        files = os.listdir(test_dir)
+        for file in files:
+            print(file)
+        for i in range(1, 11):
+            # check that the files are there
+            path = def_fmt.format(fname, i)
+            print(path)
+            assert(path in files)
+            os.remove(os.path.join(test_dir, path))
 
 if __name__ == "__main__":
     unittest.main()
