@@ -17,7 +17,7 @@ logger.setLevel(logging.WARNING)
 
 logger_names = set()
 
-def setup_logger(logger_name, requested_level):
+def setup_logger(logger_name, requested_level="info"):
     # type: (str, str) -> logging.Logger
     global logger_names
     level = check_log_level(requested_level, logging.WARNING)
