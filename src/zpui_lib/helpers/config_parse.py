@@ -77,8 +77,11 @@ def read_or_create_config(config_path, default_config, app_name):
     """
     try:
         config_obj = read_config(config_path)
-    except (ValueError, OSError):
-        logger.warning("{}: broken/nonexistent config, restoring with defaults...".format(app_name))
+    except (ValueError, OSError) as e:
+        if isinstance(e, FileNotFoundError):
+            logger.info("{}: config not yet created, creating with defaults...".format(app_name))
+        else:
+            logger.exception("{}: broken config, restoring with defaults...".format(app_name))
         if os.path.exists(config_path):
             new_path = move_faulty_config_to_new_path(config_path)
             logger.warning("Moved the faulty config file into {}".format(new_path))
