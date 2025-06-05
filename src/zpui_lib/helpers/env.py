@@ -30,7 +30,7 @@ def get_platform():
     for func, name in funcs:
         try:
             if func():
-                infos.append(name)
+                platform_info.append(name)
         except:
             logger.exception("platform detection hook {} failed:".format(repr(str)))
     return platform_info
