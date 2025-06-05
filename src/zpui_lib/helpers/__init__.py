@@ -5,4 +5,4 @@ from zpui_lib.helpers.usability import ExitHelper, remove_left_failsafe
 from zpui_lib.helpers.logger import setup_logger
 from zpui_lib.helpers.process import ProHelper
 from zpui_lib.helpers.input_system import KEY_RELEASED, KEY_HELD, KEY_PRESSED, cb_needs_key_state, get_all_available_keys
-from zpui_lib.helpers.env import zpui_running_as_service, is_emulator
+from zpui_lib.helpers.env import zpui_running_as_service, is_emulator, is_beepy, get_platform
