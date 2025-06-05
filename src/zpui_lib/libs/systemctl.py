@@ -1,5 +1,6 @@
 from zpui_lib.helpers import setup_logger
 from pydbus import SystemBus
+import subprocess
 
 from operator import itemgetter
 
@@ -10,6 +11,7 @@ logger = setup_logger(__name__, "warning")
 
 bus = None
 systemd = None
+parsing_backup = False # zpui repo 26ae78c77f3c
 
 def init_bus():
     global bus, systemd
@@ -22,6 +24,7 @@ def init_bus():
         logger.warning("systemctl library failed to get system bus")
         bus = None
         systemd = None
+        parsing_backup = True
 
 init_bus()
 
@@ -76,6 +79,26 @@ def list_units(unit_filter_field = None, unit_filter_values = []):
 
     return units
 
+"""
+def list_units():
+    units = []
+    output = subprocess.check_output(["systemctl", "list-units", "-a"])
+    lines = output.split('\n')[1:][:-8]
+    for line in lines:
+        line = ' '.join(line.split()).strip(' ') #Removing all redundant whitespace
+        if line.startswith('\xe2\x97\x8f'): #Special character that is used by systemctl output to mark units that failed to load
+            elements = line.split(' ', 5)[1:] #Omitting that first element since it doesn't convey any meaning
+        else:
+            elements = line.split(' ', 4)
+        if len(elements) == 5:
+            name, loaded, active, details, description = elements
+            basename, type = name.rsplit('.', 1)
+            name = name.replace('\\x2d', '-') #Replacing unicode dashes with normal ones
+            units.append({"name":name, "load":loaded, "active":active, "sub":details, "description":description, "type":type, "basename":basename})
+        else:
+            logger.error("Systemctl: couldn't parse line: {}".format(repr(line)))
+    return units
+"""
 
 def action_unit(action, unit, mode="fail", en_dis_runtime=False, en_force=False):
     # See D-Bus documentation (linked above) for argument explanation
