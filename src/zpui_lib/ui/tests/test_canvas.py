@@ -5,6 +5,9 @@ import unittest
 from mock import patch, Mock
 from PIL import Image, ImageFont, ImageChops
 
+from zpui_lib.helpers import local_path_gen
+local_path = local_path_gen(__name__)
+
 try:
     from zpui_lib.ui import Canvas, expand_coords
 except ImportError:
@@ -250,7 +253,7 @@ def imgs_are_equal(i1, i2):
 
 def get_image(path):
     if path not in os.listdir('.'):
-        path = os.path.join('ui/tests/', path)
+        path = local_path(path)
     return Image.open(path)
 
 if __name__ == '__main__':

@@ -3,6 +3,9 @@ import zipfile
 import unittest
 from mock import Mock
 
+from zpui_lib.helpers import local_path_gen
+local_path = local_path_gen(__name__)
+
 from zpui_lib.libs.bugreport.bugreport import BugReport
 
 
@@ -10,8 +13,8 @@ class TestBugReport(unittest.TestCase):
 
     def test_workflow_without_send(self):
         br = BugReport("test.zip")
-        br.add_dir_or_file("__init__.py")
-        br.add_dir_or_file("libs/bugreport/resources/")
+        br.add_dir_or_file(local_path("__init__.py"))
+        br.add_dir_or_file(local_path("resources/"))
         br.add_text("print('Hello')", "main.py")
         # Let's test if the resulting file is a ZIP file
         br.zip.close()
@@ -23,7 +26,7 @@ class TestBugReport(unittest.TestCase):
 
     def test_save_in(self):
         br = BugReport("zpui_bugreport_test.zip")
-        br.add_dir_or_file("__init__.py")
+        br.add_dir_or_file(local_path("__init__.py"))
         br.store_in("/tmp")
         assert(os.path.isfile("/tmp/zpui_bugreport_test.zip"))
         # Test if the resulting file is a ZIP file
