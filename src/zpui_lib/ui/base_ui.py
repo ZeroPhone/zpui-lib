@@ -295,9 +295,16 @@ class BaseUIElement(object):
             caller = getframeinfo(frame[0])
             filename = caller.filename
             lineno = caller.lineno
-            if filename.startswith(cwd):
+            print(filename)
+            marker = "/zpui_lib/"
+            # normalizing filename
+            if marker in filename: # works for zpui-external apps
+                index = filename.index(marker) + len(marker)
+                filename = filename[index:]
+            elif filename.startswith(cwd): # works for zpui-internal apps
                 filename = filename[len(cwd):].lstrip("/")
-            if filename.startswith("apps/"):
+            # now, checking frame filenames for a relevant frame
+            if filename.startswith("apps/"): # work for zpui-internal apps
                 # First frame that starts with 'apps' - likely is a frame from the app file
                 break
             elif not filename.startswith('ui') and last_filename and last_filename.startswith('ui'):
