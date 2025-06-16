@@ -1,0 +1,10 @@
+unidecode
+pydbus
+mock
+pytest
+psutil
+pyyaml
+canonicaljson # this and following three are needed for matrix library
+appdirs
+unpaddedbase64
+responses
