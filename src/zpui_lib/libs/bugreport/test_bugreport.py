@@ -3,7 +3,7 @@ import zipfile
 import unittest
 from mock import Mock
 
-from libs.bugreport.bugreport import BugReport
+from zpui_lib.libs.bugreport.bugreport import BugReport
 
 
 class TestBugReport(unittest.TestCase):

@@ -6,8 +6,8 @@ from threading import Event
 from mock import patch, Mock
 
 try:
-    from ui import Menu, Entry
-    from ui.base_list_ui import Canvas
+    from zpui_lib.ui import Menu, Entry
+    from zpui_lib.ui.base_list_ui import Canvas
     fonts_dir = "ui/fonts"
 except ImportError:
     print("Absolute imports failed, trying relative imports")

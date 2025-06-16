@@ -6,7 +6,7 @@ import traceback
 from mock import patch, Mock
 
 try:
-    from libs import dmesg
+    from zpui_lib.libs import dmesg
 except (ValueError, ImportError) as e:
     print("Absolute imports failed, trying relative imports")
     os.sys.path.append(os.path.dirname(os.path.abspath('.')))

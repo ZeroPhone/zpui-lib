@@ -7,7 +7,7 @@ from mock import patch, Mock
 from PIL import Image
 
 try:
-    from ui import Refresher, RefresherExitException, RefresherView
+    from zpui_lib.ui import Refresher, RefresherExitException, RefresherView
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     os.sys.path.append(os.path.dirname(os.path.abspath('.')))

@@ -5,7 +5,7 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui import UniversalInput, CharArrowKeysInput, NumpadCharInput, NumpadNumberInput, NumpadHexInput, NumpadKeyboardInput
+    from zpui_lib.ui import UniversalInput, CharArrowKeysInput, NumpadCharInput, NumpadNumberInput, NumpadHexInput, NumpadKeyboardInput
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     os.sys.path.append(os.path.dirname(os.path.abspath('.')))

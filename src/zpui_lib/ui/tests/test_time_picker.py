@@ -4,7 +4,7 @@ import os, unittest
 from mock import patch, Mock
 
 try:
-	from ui import TimePicker
+	from zpui_lib.ui import TimePicker
 except ImportError:
 	print("Absolute imports failed, trying relative imports")
 	os.sys.path.append(os.path.dirname(os.path.abspath('.')))

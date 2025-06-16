@@ -6,7 +6,7 @@ from mock import patch, Mock
 from PIL import Image, ImageFont, ImageChops
 
 try:
-    from ui import Canvas, expand_coords
+    from zpui_lib.ui import Canvas, expand_coords
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     from zpui_lib.hacks import basestring_hack; basestring_hack()

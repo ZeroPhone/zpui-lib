@@ -6,7 +6,7 @@ from PIL import Image
 from mock import patch, Mock
 
 try:
-    from ui import Canvas, Printer, GraphicsPrinter
+    from zpui_lib.ui import Canvas, Printer, GraphicsPrinter
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     os.sys.path.append(os.path.dirname(os.path.abspath('.')))

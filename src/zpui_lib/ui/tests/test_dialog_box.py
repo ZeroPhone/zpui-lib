@@ -5,8 +5,8 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui import DialogBox
-    from ui.dialog import Canvas
+    from zpui_lib.ui import DialogBox
+    from zpui_lib.ui.dialog import Canvas
     fonts_dir = "ui/fonts"
 except ImportError:
     print("Absolute imports failed, trying relative imports")

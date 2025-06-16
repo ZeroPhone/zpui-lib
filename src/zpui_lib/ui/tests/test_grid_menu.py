@@ -5,7 +5,7 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui import GridMenu, Canvas
+    from zpui_lib.ui import GridMenu, Canvas
     fonts_dir = "ui/fonts"
 except ImportError:
     print("Absolute imports failed, trying relative imports")

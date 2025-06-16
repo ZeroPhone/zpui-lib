@@ -6,7 +6,7 @@ from PIL import Image
 from mock import patch, Mock
 
 try:
-    from ui import TextReader
+    from zpui_lib.ui import TextReader
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     from zpui_lib.hacks import basestring_hack; basestring_hack()

@@ -5,8 +5,8 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui import Menu, HelpOverlay, FunctionOverlay, GridMenu, GridMenuLabelOverlay, IntegerAdjustInputOverlay, IntegerAdjustInput, SpinnerOverlay, PurposeOverlay
-    from ui.base_list_ui import Canvas
+    from zpui_lib.ui import Menu, HelpOverlay, FunctionOverlay, GridMenu, GridMenuLabelOverlay, IntegerAdjustInputOverlay, IntegerAdjustInput, SpinnerOverlay, PurposeOverlay
+    from zpui_lib.ui.base_list_ui import Canvas
     fonts_dir = "ui/fonts"
 except ImportError:
     print("Absolute imports failed, trying relative imports")

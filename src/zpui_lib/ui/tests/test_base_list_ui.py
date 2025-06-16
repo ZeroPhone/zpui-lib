@@ -5,8 +5,8 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui.base_list_ui import BaseListUIElement, Canvas
-    from ui import Entry
+    from zpui_lib.ui.base_list_ui import BaseListUIElement, Canvas
+    from zpui_lib.ui import Entry
     fonts_dir = "ui/fonts"
 except ImportError as e:
     print("Absolute imports failed, trying relative imports")

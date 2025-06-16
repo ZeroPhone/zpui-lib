@@ -5,7 +5,7 @@ import unittest
 from mock import patch, Mock
 
 try:
-    from ui import PathPicker, MenuExitException
+    from zpui_lib.ui import PathPicker, MenuExitException
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     from zpui_lib.hacks import basestring_hack; basestring_hack()

@@ -7,7 +7,7 @@ from mock import patch, Mock
 from PIL import Image, ImageFont, ImageChops
 
 try:
-    from ui import ellipsize, format_for_screen as ffs, replace_filter_ascii as rfa, add_character_replacement, format_values_into_text_grid as fvitg
+    from zpui_lib.ui import ellipsize, format_for_screen as ffs, replace_filter_ascii as rfa, add_character_replacement, format_values_into_text_grid as fvitg
 except ImportError:
     print("Absolute imports failed, trying relative imports")
     os.sys.path.append(os.path.dirname(os.path.abspath('.')))
