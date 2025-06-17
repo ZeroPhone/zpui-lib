@@ -266,7 +266,9 @@ class TestProHelper(unittest.TestCase):
         ph.poll()
         ph.read(1) # reading the \n
         #if isinstance(output, bytes): output = output.decode("ascii")
-        assert(output.strip() == "hello")
+        #output = 'pytest-cov: Failed to setup subprocess coverage. Environ: {\'COV_CORE_SOURCE\': \':\', \'COV_CORE_CONFIG\': \':\', \'COV_CORE_DATAFILE\': \'/home/runner/work/zpui-lib/zpui-lib/src/zpui_lib/.coverage\'} Exception: ModuleNotFoundError("No module named \'pygments\'")\r\nhello'
+        # this line is made more complex because pytest can result in weird stuff being printed by the Python interpreter. as such, we only test the last line output by the Python interpreter
+        assert(output.rsplit('\n', 1)[-1].strip() == "hello")
         #print(repr(output))
         for i in range(100):
             ph.poll()
@@ -277,40 +279,6 @@ class TestProHelper(unittest.TestCase):
                 raise Exception("taking too long to exit!")
         assert(not ph.is_ongoing())
 
-
-"""
-phs = []
-def work():
-    global phs
-    command = "mtconnect_mssql.py"
-    cwd = "../mtconnect"
-    worker_configs = [
-        {"command":["python3", command, "machine1"], "cwd":cwd},
-        #{"command":["python3", command, "machine2"], "cwd":cwd},
-        {"command":["yes", command, "machine2"], "cwd":cwd},
-        {"command":["python3", command, "machine3"], "cwd":cwd},
-        {"command":["python3", command, "machine4"], "cwd":cwd}
-    ]
-    for config in worker_configs:
-        ph = ProHelper(config["command"], output_callback="print", cwd=config["cwd"])
-        phs.append(ph)
-        ph.run()
-    while True:
-        for i, ph in enumerate(phs):
-            print(i)
-            #if i == 1: print(ph.dump_info())
-            print(ph.poll(do_read=False))
-            print(i)
-            print(ph.dump_info(do_read=False))
-            if not ph.is_ongoing():
-                # process has failed
-                # log data here
-                print("Process {} failed, restarting, data: {}".format(i, ph.dump_info()))
-                ph.reset()
-                ph.run()
-                time.sleep(1)
-    import pdb;pdb.set_trace()
-"""
 
 if __name__ == '__main__':
     import sys
