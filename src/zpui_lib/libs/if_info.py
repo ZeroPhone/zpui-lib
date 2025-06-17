@@ -1,3 +1,4 @@
+import unittest
 import subprocess
 #Description used for all interfaces
 from copy import copy
@@ -11,6 +12,8 @@ if_description = {
    'ph_addr':None
 }
 
+td1 = '1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n    inet 127.0.0.1/8 scope host lo\n       valid_lft forever preferred_lft forever\n    inet6 ::1/128 scope host \n       valid_lft forever preferred_lft forever\n2: wlp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000\n    link/ether ab:cd:ef:01:23:45 brd ff:ff:ff:ff:ff:ff\n    inet 192.168.1.2/24 brd 192.168.1.255 scope global dynamic noprefixroute wlp1s0\n       valid_lft 806560sec preferred_lft 806560sec\n    inet6 abcd:ef01:2345:0:abcd:ef01:2345:6789/64 scope global temporary dynamic \n       valid_lft 7078sec preferred_lft 3478sec\n3: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000\n    link/ether ab:cd:ef:01:23:46 brd ff:ff:ff:ff:ff:ff\n    inet 192.168.2.1/24 brd 192.168.2.255 scope global virbr0\n       valid_lft forever preferred_lft forever\n'
+
 def parse_params(param_string):
     state = None
     words = param_string.split(" ")
@@ -19,10 +22,11 @@ def parse_params(param_string):
             state = words[index+1].lower()
     return {'state':state}
 
-def parse_ip_addr():
+def parse_ip_addr(output=None):
     interfaces = {}
     current_if = None
-    output = subprocess.check_output(['ip', 'addr'])
+    if output == None:
+        output = subprocess.check_output(['ip', 'addr'])
     if isinstance(output, bytes): output = output.decode("ascii")
     output = [line for line in output.split('\n') if line != ""]
     for line in output:
@@ -86,8 +90,18 @@ def sort_ips(ips):
     #Now returning the IPs associated with integer representations - by order of elements the sorted list
     return [ip_to_int_repr[int_repr] for int_repr in int_reprs]
 
+class TestIfInfo(unittest.TestCase):
+
+    def test_parse_ip_addr(self):
+        """ tests parse_ip_addr function """
+        output = parse_ip_addr(output=td1)
+        assert output == {'lo': {'state': 'unknown', 'addr': '127.0.0.1', 'mask': '8', 'addr6': '::1', 'mask6': '128', 'ph_addr': None}, 'wlp1s0': {'state': 'up', 'addr': '192.168.1.2', 'mask': '24', 'addr6': 'abcd:ef01:2345:0:abcd:ef01:2345:6789', 'mask6': '64', 'ph_addr': 'ab:cd:ef:01:23:45'}, 'virbr0': {'state': 'down', 'addr': '192.168.2.1', 'mask': '24', 'addr6': None, 'mask6': 0, 'ph_addr': 'ab:cd:ef:01:23:46'}}
+
+    def test_get_network_from_ip(self):
+        """ tests get_network_from_ip function """
+        ip = "192.168.88.153/24"
+        network = get_network_from_ip(ip)
+        assert network == "192.168.88.0/24"
+
 if __name__ == "__main__":
-    print(parse_ip_addr())
-    ip = "192.168.88.153/24"
-    network = get_network_from_ip(ip)
-    print("IP {} is from network {}".format(ip, network))
+    unittest.main()
