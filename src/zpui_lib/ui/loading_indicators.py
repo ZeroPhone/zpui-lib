@@ -270,6 +270,7 @@ class GraphicalProgressBar(ProgressIndicator):
         self.bar_height = kwargs.pop("bar_height", 15)
         BaseLoadingIndicator.__init__(self, i, o, *args, **kwargs)
 
+    @to_be_foreground
     def refresh(self):
         c = Canvas(self.o)
         if self.show_percentage:
@@ -279,7 +280,7 @@ class GraphicalProgressBar(ProgressIndicator):
             bar_top_min = self.margin + (coords.bottom - coords.top)
             bar_top = bar_top_min if self.margin < bar_top_min else self.margin
         else:
-            bar_top = self.o.width // 2
+            bar_top = c.width // 2
 
         self.draw_message(c)
         self.draw_bar(c, bar_top)
@@ -296,8 +297,8 @@ class GraphicalProgressBar(ProgressIndicator):
         outline_coords = Rect(
             self.margin,
             top_y,
-            self.o.width - self.margin,
-            min(top_y + self.bar_height, self.o.height - self.margin)
+            c.width - self.margin,
+            min(top_y + self.bar_height, c.height - self.margin)
         )
 
         bar_width = outline_coords.right - outline_coords.left - self.padding * 2
