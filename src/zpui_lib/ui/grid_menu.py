@@ -187,7 +187,8 @@ class BebbleGridView(GridView):
     entry_width = 100
     dim = 50
     between_row = 5 # between-row gap
-    bar_height = 30 # status bar
+    bar_height = 0 # status bar
+    #bar_height = 30 # status bar
     # 720x720 test for the meme, and it does work!
     #font_size = 27
     #entry_width = 220
@@ -305,7 +306,7 @@ class BebbleGridView(GridView):
         c = Canvas(self.o)
 
         # status bar text placeholder
-        c.text("Status bar will go here", (25, 4), font=(self.MuktaSemiBold, 12))
+        #c.text("Status bar will go here", (25, 4), font=(self.MuktaSemiBold, 12))
         # menu background fill (with default color)
         c.rectangle((0, self.bar_height, c.width, c.height), fill=c.default_color)
 
