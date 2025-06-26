@@ -608,6 +608,14 @@ class Canvas(object):
             return getattr(self.draw, name)
         raise AttributeError
 
+    def show_grid(self, step_x=20, step_y=20):
+        """
+        Helper function for checking your coordinate placement
+        """
+        for i in range((self.width//step_x)-1):
+            self.line(((i+1)*step_x, 0, (i+1)*step_x, self.height), fill=self.default_color)
+        for j in range((self.height//step_y)-1):
+            self.line((0, (j+1)*step_y, self.width, (j+1)*step_y), fill=self.default_color)
 
 class MockOutput(object):
     """
