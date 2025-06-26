@@ -634,15 +634,19 @@ class MockOutput(object):
     default_type = ["b&w"]
     default_device_mode = '1'
 
-    def __init__(self, width=None, height=None, type=None, device_mode=None, o=None):
+    def __init__(self, width=None, height=None, type=None, device_mode=None, o=None, warn_on_display=True):
         # now overriding parameters
         # first supplied arguments, then o. parameters, then defaults
         self.width = width if width else (o.width if o else self.default_width)
         self.height = height if height else (o.height if o else self.default_height)
         self.type = type if type else (o.type if o else self.default_type)
         self.device_mode = device_mode if device_mode else (o.device_mode if o else self.default_device_mode)
+        self.warn_on_display = warn_on_display
 
-    def display_image(self, *args):
+    def display_image(self, image):
+        if self.warn_on_display:
+            logger.warning("Trying to call display_image() of MockOutput!")
+        self.current_image = image
         return True
 
 
