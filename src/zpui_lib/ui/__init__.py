@@ -30,6 +30,7 @@ from zpui_lib.ui.overlays import HelpOverlay, FunctionOverlay, GridMenuLabelOver
                      SpinnerOverlay, PurposeOverlay
 from zpui_lib.ui.utils import fit_image_to_screen
 from zpui_lib.ui.entry import Entry
+from zpui_lib.ui.zone import Zone, ZoneManager, ZoneSpacer, VerticalZoneSpacer
 
 IntegerInDecrementInput = IntegerAdjustInput  # Compatibility with old ugly name
 LoadingIndicator = LoadingBar
