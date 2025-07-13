@@ -83,10 +83,14 @@ class WpaMonitor():
                 status = process_f(status)
             else:
                 args = parts[1:]
-                data = {}
-                for arg in args:
-                    key, value = arg.split("=", 1)
-                    data[key] = value
+                # we can only parse args as 'key=value' if all of them contain '='
+                if all(["=" in arg for arg in args]):
+                    data = {}
+                    for arg in args:
+                        key, value = arg.split("=", 1)
+                        data[key] = value
+                else:
+                    data = args # just store the list, unparsed
                 status["code"] = code
                 status["data"] = data
         else:
