@@ -142,12 +142,21 @@ class BaseListUIElement(BaseUIElement):
         else:
             raise ValueError("Unsupported display type: {}".format(repr(self.o.type)))
 
+    def on_pointer_update(self):
+        """
+        Lets you do things every time the pointer has been updated.
+        Undefined by default. You'd benefit from making sure you keep
+        calling it every time you update the pointer!
+        """
+        pass
+
     def before_activate(self):
         """
         Hook for child UI elements, meant to be called.
         For a start, resets the ``pointer`` to the ``start_pointer``.
         """
         self.pointer = self.start_pointer
+        self.on_pointer_update()
 
     def to_foreground(self):
         """ Is called when UI element's ``activate()`` method is used, sets flags
@@ -199,12 +208,14 @@ class BaseListUIElement(BaseUIElement):
             self.pointer += 1
             self.reset_scrolling()
             self.refresh()
+            self.on_pointer_update()
             return True
         else:
             if self.navigation_wrap:
                 self.pointer = 0
                 self.refresh()
                 self.reset_scrolling()
+                self.on_pointer_update()
                 return True
             return False
 
@@ -234,12 +245,14 @@ class BaseListUIElement(BaseUIElement):
             self.pointer -= 1
             self.refresh()
             self.reset_scrolling()
+            self.on_pointer_update()
             return True
         else:
             if self.navigation_wrap:
                 self.pointer = len(self.contents)-1
                 self.refresh()
                 self.reset_scrolling()
+                self.on_pointer_update()
                 return True
             return False
 
@@ -266,6 +279,7 @@ class BaseListUIElement(BaseUIElement):
             self.pointer = 0
             self.refresh()
             self.reset_scrolling()
+            self.on_pointer_update()
             return True
         else:
             return False
@@ -278,6 +292,7 @@ class BaseListUIElement(BaseUIElement):
             self.pointer = len(self.contents)-1
             self.refresh()
             self.reset_scrolling()
+            self.on_pointer_update()
             return True
         else:
             return False
@@ -435,6 +450,7 @@ class TextView(object):
         self.el.pointer = new_pointer
         if self.first_displayed_entry < new_pointer - full_entries_shown:
             self.first_displayed_entry = new_pointer - full_entries_shown
+        self.el.on_pointer_update()
 
     def fix_pointers_on_refresh(self):
         full_entries_shown = self.get_entry_count_per_screen()
