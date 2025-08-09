@@ -83,11 +83,11 @@ class TimePicker(BaseUIElement):
 		sleep(0.1)
 
 	def exit_time_picker(self):
-		self.deactivate()
+		self.key_deactivate()
 
 	def accept_value(self):
 		self.accepted_value = True
-		self.deactivate()
+		self.key_deactivate()
 
 	def draw_clock(self):
 		self.c.clear()

@@ -92,7 +92,7 @@ class Checkbox(BaseListUIElement):
         entry_state = self.get_entry_default_state(self.contents[self.pointer])
         if entry_state == self.exit_entry[2]:
             self.accepted = True
-            self.deactivate()
+            self.key_deactivate()
             return
         self.states[self.pointer] = not self.states[self.pointer]  # Just inverting.
         self.view.refresh()

@@ -236,7 +236,7 @@ class TextReader(object):
             "KEY_F4": lambda: self.page_down(),
             "KEY_LEFT": lambda: self.move_left(),
             "KEY_RIGHT": lambda: self.move_right(),
-            "KEY_ENTER": lambda: self.deactivate()
+            "KEY_ENTER": lambda: self.key_deactivate()
         }
 
     def to_foreground(self):
@@ -244,6 +244,9 @@ class TextReader(object):
         self.in_foreground = True
         self.refresh()
         self.set_keymap()
+
+    def key_deactivate(self):
+        self.deactivate()
 
     def deactivate(self):
         self.in_foreground = False
@@ -265,7 +268,7 @@ class TextReader(object):
 
     def move_left(self):
         if self.v_scroll_index == 0:
-            self.deactivate()
+            self.key_deactivate()
 
         self.v_scroll_index -= self.scroll_speed
         self.after_move()

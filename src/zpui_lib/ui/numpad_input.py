@@ -65,7 +65,7 @@ class NumpadCharInput(BaseUIElement):
 
     action_keys = {
                "KEY_ENTER":"accept_value",
-               "KEY_F1":"deactivate",
+               "KEY_F1":"key_deactivate",
                "KEY_LEFT":"deactivate_if_first",
                "KEY_RIGHT":"skip",
                "KEY_F2":"backspace",
@@ -136,12 +136,12 @@ class NumpadCharInput(BaseUIElement):
     def deactivate_if_first(self):
         """ Deactivates the UI element if it hasn't yet had a character entered """
         if self.position == 0:
-            self.deactivate()
+            self.key_deactivate()
 
     def accept_value(self):
         logger.info("{0}: accepted value".format(self.name))
         self.value_accepted = True
-        self.deactivate()
+        self.key_deactivate()
 
     # Functions processing user input.
 

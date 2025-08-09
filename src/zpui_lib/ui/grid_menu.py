@@ -60,7 +60,7 @@ class GridMenu(Menu):
             "KEY_ENTER": "select_entry",
         })
         if self.exitable:
-            keymap.update({"KEY_F1": "deactivate"})
+            keymap.update({"KEY_F1": "key_deactivate"})
         return keymap
 
     def grid_move_up(self):

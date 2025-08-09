@@ -110,7 +110,7 @@ class DatePicker(BaseUIElement):
             "KEY_ENTER": "accept_value",
             "KEY_F3": "move_to_previous_month",
             "KEY_F4": "move_to_next_month",
-            "KEY_F1": "deactivate"
+            "KEY_F1": "key_deactivate"
         }
 
     def idle_loop(self):
@@ -199,7 +199,7 @@ class DatePicker(BaseUIElement):
             self.to_foreground()
         else:
             self.accepted_value = True
-            self.deactivate()
+            self.key_deactivate()
 
     def draw_calendar(self):
         """Draw the calendar view"""

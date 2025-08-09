@@ -162,14 +162,14 @@ class CharArrowKeysInput(BaseUIElement):
         """Selects the currently active number value, making activate() return it."""
         self.check_for_backspace()
         logger.debug("Value accepted")
-        self.deactivate()
+        self.key_deactivate()
 
     @to_be_foreground
     def exit(self):
         """Exits discarding all the changes to the value."""
         logger.debug("{} exited without changes".format(self.name))
         self.cancel_flag = True
-        self.deactivate()
+        self.key_deactivate()
 
     def generate_keymap(self):
         return {

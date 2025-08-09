@@ -76,7 +76,7 @@ class Listbox(BaseListUIElement):
         |Is typically used as a callback from input event processing thread."""
         logger.debug("entry selected")
         self.selected_entry = self.pointer
-        self.deactivate()
+        self.key_deactivate()
 
     def go_to_value(self, value):
         """

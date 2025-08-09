@@ -81,7 +81,7 @@ class BaseLoadingIndicator(Refresher):
         self.t.start()
 
     def stop(self):
-        self.deactivate()
+        self.key_deactivate()
         self.t = None
 
     def __enter__(self):

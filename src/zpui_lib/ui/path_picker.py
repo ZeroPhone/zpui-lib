@@ -71,7 +71,7 @@ class PathPicker(Menu):
             self.contents[self.pointer][1]()
             self.to_foreground()
             if self.path_chosen:
-                self.deactivate()
+                self.key_deactivate()
             else:
                 self.to_foreground()
 
@@ -84,7 +84,7 @@ class PathPicker(Menu):
 
     def go_back(self):
         if self.path == '/':
-            self.deactivate()
+            self.key_deactivate()
             return
         parent_path = os.path.split(self.path)[0]
         self.goto_dir(parent_path)
@@ -192,7 +192,7 @@ class PathPicker(Menu):
         self.display_hidden = not self.display_hidden
 
     def option_exit(self):
-        self.deactivate()
+        self.key_deactivate()
         raise MenuExitException #Menu needs to exit when PathPicker exits. It doesn't, of course, as it's in the main loop, so the app's left hanging.
         #One of the reasons MenuExitExceptions are there.
 
@@ -200,7 +200,7 @@ class PathPicker(Menu):
         path = os.path.normpath(path)
         if self.callback is None:
             self.select_path(path)
-            self.deactivate()
+            self.key_deactivate()
             raise MenuExitException
         else:
             self.callback(path)

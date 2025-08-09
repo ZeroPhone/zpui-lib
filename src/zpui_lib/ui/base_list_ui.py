@@ -308,7 +308,7 @@ class BaseListUIElement(BaseUIElement):
 
     def set_keymap(self, keymap):
         if self.exitable and self._override_left:
-            keymap["KEY_LEFT"] = "deactivate"
+            keymap["KEY_LEFT"] = "key_deactivate"
         # BaseUIElement.process_contents ignores self.exitable
         # and only honors self._override_left
         # Let's save it to a temp variable and process the contents!

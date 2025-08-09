@@ -83,7 +83,7 @@ class OrderAdjust(BaseListUIElement):
         if self.contents[self.pointer] == self.accept_entry:
             logger.debug("{}: ordering confirmed".format(self.name))
             self.confirmed = True
-            self.deactivate()
+            self.key_deactivate()
         else:
             if self.entry_is_being_moved:
                 logger.debug("{}: stopped moving entry: {}".format( \
@@ -105,7 +105,7 @@ class OrderAdjust(BaseListUIElement):
             self.entry_is_being_moved = False
             self.refresh()
         else:
-            self.deactivate()
+            self.key_deactivate()
 
     @to_be_foreground
     def move_up(self):

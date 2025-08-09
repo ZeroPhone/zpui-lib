@@ -89,13 +89,13 @@ class IntegerAdjustInput(BaseUIElement):
         """Selects the currently active number value, making activate() return it."""
         logger.debug("Number accepted")
         self.selected_number = self.number
-        self.deactivate()
+        self.key_deactivate()
 
     @to_be_foreground
     def exit(self):
         """Exits discarding all the changes to the number."""
         logger.debug("{} exited without changes".format(self.name))
-        self.deactivate()
+        self.key_deactivate()
 
     def generate_keymap(self):
         return {

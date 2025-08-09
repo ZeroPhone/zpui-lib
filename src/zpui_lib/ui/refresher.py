@@ -165,7 +165,7 @@ class Refresher(BaseUIElement):
             try:
                 func(*args, **kwargs)
             except RefresherExitException:
-                self.deactivate()
+                self.key_deactivate()
             except Exception as e:
                 print_exc()
             logger.debug("{}: executed wrapped function: {}".format(self.name, func.__name__))
@@ -182,7 +182,7 @@ class Refresher(BaseUIElement):
             data_to_display = self.refresh_function()
         except RefresherExitException:
             logger.info("{}: received exit exception, deactivating".format(self.name))
-            self.deactivate()
+            self.key_deactivate()
             return
         if isinstance(data_to_display, basestring):
             #Passed a string, not a list.

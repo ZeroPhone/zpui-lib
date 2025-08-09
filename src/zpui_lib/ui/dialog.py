@@ -98,7 +98,7 @@ class DialogBox(BaseUIElement):
             km.update({
               "KEY_DOWN": 'move_right',
               "KEY_UP": 'move_left',
-              "KEY_LEFT": 'deactivate',
+              "KEY_LEFT": 'key_deactivate',
             })
         else:
             km.update({
@@ -111,7 +111,7 @@ class DialogBox(BaseUIElement):
         scroll_is_vertical = getattr(self.view, 'scroll_is_vertical', False)
         if self.selected_option == 0:
             if not scroll_is_vertical:
-                self.deactivate()
+                self.key_deactivate()
             return
         self.selected_option -= 1
         self.refresh()
@@ -124,7 +124,7 @@ class DialogBox(BaseUIElement):
 
     def accept_value(self):
         self.value_selected = True
-        self.deactivate()
+        self.key_deactivate()
 
     def refresh(self):
         self.view.refresh()

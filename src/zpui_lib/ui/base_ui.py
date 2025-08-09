@@ -155,6 +155,11 @@ class BaseUIElement(object):
         """
         raise NotImplementedError
 
+    def key_deactivate(self):
+        """ A method to deactivate the menu specifically on key press.
+        Is mostly useful for making key callbacks easily patchable. """
+        self.deactivate()
+
     def deactivate(self):
         """ Deactivates the UI element, exiting it. """
         self.in_foreground = False
@@ -217,7 +222,7 @@ class BaseUIElement(object):
                 raise ValueError("{}: {} is not a callable".format(self.name, callback_or_name))
         if self._override_left:
             if not "KEY_LEFT" in keymap:
-                keymap["KEY_LEFT"] = self.deactivate
+                keymap["KEY_LEFT"] = self.key_deactivate
         return keymap
 
     def set_keymap(self, keymap):

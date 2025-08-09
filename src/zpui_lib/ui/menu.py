@@ -97,7 +97,7 @@ class Menu(BaseListUIElement):
                     self.on_contents_hook_fail(self, exception=True)
                 else:
                     # Just making the menu exit by deactivating
-                    self.deactivate()
+                    self.key_deactivate()
                 return False
             else:
                 if new_contents is not None:
@@ -108,7 +108,7 @@ class Menu(BaseListUIElement):
                         self.on_contents_hook_fail(self, exception=False)
                     else:
                         logger.error("{}: contents hook returned None, on_contents_hook_fail not set - deactivating".format(self.name))
-                        self.deactivate()
+                        self.key_deactivate()
                     return False
         else:
             return None
@@ -144,7 +144,7 @@ class Menu(BaseListUIElement):
             entry = self.contents[self.pointer]
         if entry == self.exit_entry:
             # It's the exit entry, exiting
-            self.deactivate()
+            self.key_deactivate()
             return
         callback = self.get_callback_from_entry(entry, callback_number=callback_number)
         if callback:
@@ -157,7 +157,7 @@ class Menu(BaseListUIElement):
                 logger.exception("{}: Callback raised an exception".format(self.name))
             finally:
                 if self.exit_exception:
-                    self.deactivate()
+                    self.key_deactivate()
                     return
                 else:
                     self.reset_scrolling()
