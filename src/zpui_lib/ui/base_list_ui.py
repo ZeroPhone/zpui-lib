@@ -69,7 +69,7 @@ class BaseListUIElement(BaseUIElement):
         self.navigation_wrap = navigation_wrap
         self.reset_scrolling()
         self.config = config if config is not None else global_config
-        self.set_view(self.config.get(self.config_key, {}))
+        self.set_view_by_config(self.config.get(self.config_key, {}))
         self.set_contents(contents)
         self.inhibit_refresh = Event()
 
@@ -94,7 +94,7 @@ class BaseListUIElement(BaseUIElement):
                     logger.debug("Subclassing {} into {}".format(view_name, name))
                     self.views[view_name] = type(name, (self.view_mixin, view_class), {})
 
-    def set_view(self, config):
+    def set_view_by_config(self, config):
         view = None
         self.set_views_dict()
         if self.name in config.get("custom_views", {}).keys():
@@ -123,6 +123,9 @@ class BaseListUIElement(BaseUIElement):
         elif not view:
             logger.debug("Getting default view for element {}".format(self.name))
             view = self.get_default_view()
+        self.set_view(view)
+
+    def set_view(self, view):
         self.view = view(self.o, self)
 
     def get_default_view(self):
