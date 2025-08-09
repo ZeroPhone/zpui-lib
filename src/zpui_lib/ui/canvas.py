@@ -598,6 +598,7 @@ class Canvas(object):
             if not coords: coords = (0, 0)
             coords = coords+(coords[0]+image.width, coords[1]+image.height)
             self.invert_rect(coords)
+        self.display_if_interactive()
 
     def display_if_interactive(self):
         if self.interactive:
