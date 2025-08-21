@@ -264,6 +264,25 @@ class Canvas(object):
         self.draw.rectangle(coords, outline=outline, fill=fill, **kwargs)
         self.display_if_interactive()
 
+    def rectangle_wh(self, coords, **kwargs):
+        """
+        Draw a rectangle on the canvas. Coordinates are expected in
+        ``(x1, y1, w, h)`` format, where ``x1`` & ``y1`` are coordinates
+        of the top left corner, and ``w`` & ``h`` are width and height
+        of the rectangle.
+
+        Keyword arguments:
+
+          * ``outline``: outline color (default: white, as default canvas color)
+          * ``fill``: fill color (default: None, as in, transparent)
+
+        This function calls ``rectangle`` internally.
+        """
+        c = list(coords[:2])
+        c.append(coords[0]+coords[2])
+        c.append(coords[1]+coords[3])
+        return self.rectangle(c, **kwargs)
+
     def polygon(self, coord_pairs, **kwargs):
         """
         Draw a polygon on the canvas. Coordinates are expected in
