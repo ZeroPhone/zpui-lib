@@ -571,15 +571,15 @@ class EightPtView(TextView):
         TextView.__init__(self, *args, **kwargs)
 
     def get_fow_width_in_chars(self):
-        return (self.o.width - self.x_scrollbar_offset) // self.charwidth
+        return int((self.o.width - self.x_scrollbar_offset) // self.charwidth)
 
     def get_fow_height_in_chars(self):
         return self.o.height // self.charheight
 
-    def refresh(self):
+    def refresh(self, cursor=True, cursor_type=""):
         logger.debug("{}: refreshed data on display".format(self.el.name))
         self.fix_pointers_on_refresh()
-        image = self.get_displayed_image()
+        image = self.get_displayed_image(cursor=cursor, cursor_type=cursor_type)
         for wrapper in self.wrappers:
             image = wrapper(image)
         self.o.display_image(image)
@@ -621,7 +621,7 @@ class EightPtView(TextView):
             y = (i * self.charheight - 1) if i != 0 else 0
             c.text(line, (left_offset, y), font=self.font)
 
-    def draw_cursor(self, c, menu_text, left_offset):
+    def draw_cursor(self, c, menu_text, left_offset, cursor_type=""):
         cursor_y = self.get_active_line_num()
         # We might not need to draw the cursor if there are no items present
         if cursor_y is not None:
@@ -631,19 +631,22 @@ class EightPtView(TextView):
             else:
                 menu_texts = menu_text[cursor_y:cursor_y+self.entry_height]
                 max_menu_text_len = max([len(t) for t in menu_texts])
-                x2 = self.charwidth * max_menu_text_len + left_offset
+                x2 = int(self.charwidth * max_menu_text_len) + left_offset
             cursor_dims = (
                 left_offset - 1,
                 c_y - 1,
                 x2,
                 c_y + self.charheight*self.entry_height - 1
             )
-            cursor_image = c.get_image(coords=cursor_dims)
-            # inverting colors - background to foreground and vice-versa
-            cursor_image = swap_colors(cursor_image, c.default_color, c.background_color, c.background_color, c.default_color)
-            c.paste(cursor_image, coords=cursor_dims[:2])
+        getattr(self, "draw_cursor_by_dims"+cursor_type)(c, cursor_dims)
 
-    def get_displayed_image(self):
+    def draw_cursor_by_dims(self, c, cursor_dims):
+        cursor_image = c.get_image(coords=cursor_dims)
+        # inverting colors - background to foreground and vice-versa
+        cursor_image = swap_colors(cursor_image, c.default_color, c.background_color, c.background_color, c.default_color)
+        c.paste(cursor_image, coords=cursor_dims[:2])
+
+    def get_displayed_image(self, cursor=True, cursor_type=""):
         """Generates the displayed data for a canvas-based output device. The output of this function can be fed to the o.display_image function.
         |Doesn't support partly-rendering entries yet."""
         c = Canvas(self.o)
@@ -656,7 +659,7 @@ class EightPtView(TextView):
         # Drawing the text itself
         self.draw_menu_text(c, menu_text, left_offset)
         # Drawing the cursor
-        self.draw_cursor(c, menu_text, left_offset)
+        if cursor: self.draw_cursor(c, menu_text, left_offset, cursor_type=cursor_type)
         # Returning the image
         return c.get_image()
 
