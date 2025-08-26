@@ -387,6 +387,19 @@ class Canvas(object):
         cy = self.height // 2 if y == None else y // 2
         return cx, cy
 
+    def center_box(self, wb, hb, w=None, h=None):
+        """
+        Get coordinates to center a (``wb``, ``wh``) box inside an area of (``w``, ``h``).
+        Basically, returns coordinates for the top left corner of a centered object.
+
+        More or less, is a shorthand to get rid of some annoying math in app code.
+        """
+        if w == None: w = self.width
+        if h == None: h = self.height
+        cpx = (w - wb) // 2
+        cpy = (h - hb) // 2
+        return cpx, cpy
+
     def invert(self):
         """
         Inverts the image that ``Canvas`` is currently operating on.
@@ -510,15 +523,27 @@ class Canvas(object):
     def get_text_bounds(self, text, font=None):
         # type: str -> Rect
         """
-        Returns the dimensions for a given text. If you use a
+        Returns the uncompensated dimensions for a given text. If you use a
+        non-default font, pass it as ``font``.
+        """
+        l, t, w, h = self.get_text_bounds_compensated(text, font=font)
+        #print(l, t, r, b)
+        #w, h = r-l, b-t
+        return w, h
+
+    def get_text_bounds_compensated(self, text, font=None):
+        # type: str -> Rect
+        """
+        Returns the compensated dimensions for a given text. If you use a
         non-default font, pass it as ``font``.
         """
         if text == "":
-            return (0, 0)
+            return (0, 0, 0, 0)
         font = self.decypher_font_reference(font)
         l, t, r, b = self.draw.textbbox((0, 0), text, font=font)
         w, h = r-l, b-t
-        return w, h
+        #print(l, t, w, h, w, h)
+        return l, t, w, h
 
     def get_centered_text_bounds(self, text, cw=None, ch=None, x=None, y=None, font=None):
         # type: str -> Rect
@@ -529,16 +554,16 @@ class Canvas(object):
         screen center values so that text is centered related to those,
         as opposed to the real screen center.
         """
-        w, h = self.get_text_bounds(text, font=font)
+        l, t, w, h = self.get_text_bounds_compensated(text, font=font)
         # Text center width and height
-        tcw = w // 2
-        tch = h // 2
+        tcw = (w // 2)
+        tch = (h // 2)
         # Real center width and height
         rcw, rch = self.get_center(x=x, y=y)
         # If no values supplied as arguments (likely), using the real ones
         cw = cw if (cw is not None) else rcw
         ch = ch if (ch is not None) else rch
-        return Rect(cw - tcw, ch - tch, cw + tcw, ch + tch)
+        return Rect(cw - tcw - l, ch - tch - t, cw + tcw - l, ch + tch - t)
 
     def get_rect(self, coords):
         # type: tuple -> Image
