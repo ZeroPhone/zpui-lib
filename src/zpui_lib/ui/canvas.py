@@ -48,7 +48,7 @@ class Canvas(object):
         global global_default_color
         self.o = o
         if "b&w" not in o.type:
-            raise ValueError("The output device supplied doesn't support pixel graphics!")
+            raise ValueError("The output device supplied doesn't support pixel graphics! o.type: {}".format(o.type))
         if "color" in o.type: # on color displays:
             if global_default_color: # global color has been set to something else
                 self.default_color = global_default_color
@@ -682,6 +682,8 @@ class MockOutput(object):
     def __init__(self, width=None, height=None, type=None, device_mode=None, o=None, warn_on_display=True, hook=None):
         # now overriding parameters
         # first supplied arguments, then o. parameters, then defaults
+        if isinstance(width, str):
+            raise ValueError("MockOutput width received as a string {}. Any chance you're doing *params instead of **params?".format(width))
         self.width = width if width else (o.width if o else self.default_width)
         self.height = height if height else (o.height if o else self.default_height)
         self.type = type if type else (o.type if o else self.default_type)
