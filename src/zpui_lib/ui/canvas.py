@@ -721,15 +721,37 @@ def expand_coords(coords, expand_by):
         return (a-e[0], b-e[1], c+e[2], d+e[3])
 
 def crop(image, min_width=None, min_height=None, align=None):
+    """
+    Default crop alignment: top left.
+    You can pass an argument to ``align=`` to align it differently.
+    You can pass a string like ``"right"``/``"bottom"``/``"hcenter"``/``"vcenter"``,
+    or pass a list of strings, like ``["right", "vcenter"]``.
+
+    ``"right"`` and ``"hcenter"`` arguments require you to specify ``min_width``,
+    and ``"bottom"`` and ``"vcenter"`` arguments require you to specify ``min_height``.
+    """
     bbox = image.getbbox()
-    if bbox is None:
+    if bbox is None: # empty image
         return Image.new(image.mode, (0, 0))
     image = image.crop(bbox)
     border = [0, 0, 0, 0]
+    # we process alignment attributes here
     if min_width and image.width<min_width:
-        border[0 if align == "right" else 2]=min_width-image.width
+        if "right" in align:
+            border[0] = min_width - image.width
+        elif "hcenter" in align:
+            half = (min_width - image.width)//2
+            border[0] = half; border[2] = half
+        else: # default left
+            border[2] = min_width - image.width
     if min_height and image.height<min_height:
-        border[1 if align == "bottom" else 3]=min_height-image.height
+        if "bottom" in align:
+            border[1] = min_height - image.height
+        elif "vcenter" in align:
+            half = (min_height-image.height)//2
+            border[1] = half; border[3] = half
+        else: # default top
+            border[3] = min_height - image.height
     if border != [0, 0, 0, 0]:
         image = ImageOps.expand(image, border=tuple(border), fill=Canvas.background_color)
     return image
