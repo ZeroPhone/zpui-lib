@@ -701,6 +701,13 @@ class MockOutput(object):
         return True
 
 
+def open_image(path, *args, **kwargs):
+    """
+    Simple wrapper around PIL.Image.open, that simplifies imports somewhat,
+    and will allow us to improve upon it in the future.
+    """
+    return Image.open(path)
+
 def expand_coords(coords, expand_by):
     """
     A simple method to expand 4 coordinates: x1, y1, x2, y2.
