@@ -706,7 +706,14 @@ def open_image(path, *args, **kwargs):
     Simple wrapper around PIL.Image.open, that simplifies imports somewhat,
     and will allow us to improve upon it in the future.
     """
-    return Image.open(path)
+    return Image.open(path, *args, **kwargs)
+
+def invert_image(path, *args, **kwargs):
+    """
+    Simple wrapper around PIL.ImageOps.invert, that simplifies imports somewhat,
+    and will allow us to improve upon it in the future.
+    """
+    return ImageOps.invert(path, *args, **kwargs)
 
 def expand_coords(coords, expand_by):
     """

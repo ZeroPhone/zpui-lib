@@ -20,7 +20,7 @@ from zpui_lib.ui.refresher import Refresher, RefresherExitException, RefresherVi
 from zpui_lib.ui.scrollable_element import TextReader
 from zpui_lib.ui.loading_indicators import ProgressBar, LoadingBar, TextProgressBar, GraphicalProgressBar, CircularProgressBar, IdleDottedMessage, Throbber
 from zpui_lib.ui.numbered_menu import NumberedMenu
-from zpui_lib.ui.canvas import Canvas, MockOutput, crop, expand_coords, replace_color, swap_colors
+from zpui_lib.ui.canvas import Canvas, MockOutput, open_image, invert_image, crop, expand_coords, replace_color, swap_colors, convert_flat_list_into_pairs
 from zpui_lib.ui.date_picker import DatePicker
 from zpui_lib.ui.time_picker import TimePicker
 from zpui_lib.ui.grid_menu import GridMenu
