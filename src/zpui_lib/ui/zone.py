@@ -269,7 +269,7 @@ class ZoneManager(object):
                 full_redraw = True
         #print(self.item_widths)
         if full_redraw:
-            logger.info("Doing a full redraw")
+            logger.debug("Doing a full redraw")
             self.c.clear()
         # Redrawing the elements (only those we need to redraw)
         y = 0
