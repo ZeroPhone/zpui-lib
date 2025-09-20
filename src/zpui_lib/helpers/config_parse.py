@@ -88,7 +88,12 @@ def read_or_create_config(config_path, default_config, app_name):
         with open(config_path, 'w') as f:
             f.write(default_config)
         config_obj = read_config(config_path)
-    default_config_obj = json.loads(default_config)
+    if config_path.endswith(".json"):
+        default_config_obj = json.loads(default_config)
+    elif config_path.endswith(".yaml"):
+        default_config_obj = yaml.safe_load(default_config)
+    else:
+        raise ValueError("Config path {} doesn't end in .json or .yaml, got no clue how to parse the default config!".format(config_path))
     if isinstance(default_config_obj, list) == isinstance(config_obj, dict):
         # Config and default config are different kinds of objects!
         # That probably means we need to deprecate the old config
