@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zpui-lib"
-version = "1.2.0"
+version = "1.2.1"
 authors = [
   { name="Arya (CRImier)", email="arya.voronova@gmail.com" },
 ]

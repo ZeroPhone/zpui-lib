@@ -28,7 +28,7 @@ from zpui_lib.ui.order_adjust import OrderAdjust
 from zpui_lib.ui.overlays import HelpOverlay, FunctionOverlay, GridMenuLabelOverlay, \
                      GridMenuSidebarOverlay, GridMenuNavOverlay, IntegerAdjustInputOverlay, \
                      SpinnerOverlay, PurposeOverlay
-from zpui_lib.ui.utils import fit_image_to_screen
+from zpui_lib.ui.utils import fit_image_to_screen, fit_image_to_dims
 from zpui_lib.ui.entry import Entry
 from zpui_lib.ui.zone import Zone, ZoneManager, ZoneSpacer, VerticalZoneSpacer
 
