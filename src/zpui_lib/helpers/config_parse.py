@@ -30,6 +30,7 @@ def read_config(config_path):
         return data
 
 def write_config(config_dict, config_path):
+    global yaml
     if config_path.endswith(".yaml"):
         if not yaml:
             logger.error("attempted to write {} with {}, but pyyaml library not found!".format(config_path, config_dict))
