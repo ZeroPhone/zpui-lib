@@ -57,23 +57,23 @@ def read_or_create_config(config_path, default_config, app_name):
     in `config_path`.failed. Also, if the config is a dictionary, adds keys to it if
     they're present in the default config but not in the current config.
 
-    >>> print('{"configtype":"sample", "version":1}', file=open('/tmp/a_valid_config_file',"w"))
-    >>> c = read_or_create_config("/tmp/a_valid_config_file", '{"default_config":true}', "test_runner")
+    >>> print('{"configtype":"sample", "version":1}', file=open('/tmp/a_valid_config_file.json',"w"))
+    >>> c = read_or_create_config("/tmp/a_valid_config_file.json", '{"default_config":true}', "test_runner")
     >>> c['configtype']
     'sample'
     >>> c['default_config']
     True
 
-    >>> print('{{{zzz', file=open('/tmp/a_invalid_config_file',"w"))
-    >>> c = read_or_create_config("/tmp/a_invalid_config_file", '{"default_config":true}', "test_runner")
-    >>> os.path.exists("/tmp/a_invalid_config_file.failed")
+    >>> print('{{{zzz', file=open('/tmp/a_invalid_config_file.json',"w"))
+    >>> c = read_or_create_config("/tmp/a_invalid_config_file.json", '{"default_config":true}', "test_runner")
+    >>> os.path.exists("/tmp/a_invalid_config_file.json.failed")
     True
     >>> c['default_config']
     True
 
-    >>> print('{{{zzz', file=open('/tmp/a_invalid_config_file',"w"))
-    >>> c = read_or_create_config("/tmp/a_invalid_config_file", '{"default_config":true}', "test_runner")
-    >>> os.path.exists("/tmp/a_invalid_config_file.failed_1")
+    >>> print('{{{zzz', file=open('/tmp/a_invalid_config_file.json',"w"))
+    >>> c = read_or_create_config("/tmp/a_invalid_config_file.json", '{"default_config":true}', "test_runner")
+    >>> os.path.exists("/tmp/a_invalid_config_file.json.failed_1")
     True
     """
     try:
