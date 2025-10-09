@@ -51,7 +51,8 @@ def get_platform():
         except:
             logger.exception("platform detection hook {} failed:".format(repr(str)))
     for device_name in platform_additions:
-        platform_info.append(device_name)
+        if device_name not in platform_info:
+            platform_info.append(device_name)
     return platform_info
 
 if __name__ == "__main__":
