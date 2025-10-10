@@ -1,5 +1,6 @@
 #!/bin/env python2
 
+from copy import copy
 import argparse
 import logging
 import os
@@ -15,23 +16,26 @@ except:
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-logger_names = set()
+loggers_initial = {}
 
 def setup_logger(logger_name, requested_level="info"):
     # type: (str, str) -> logging.Logger
-    global logger_names
-    level = check_log_level(requested_level, logging.WARNING)
-    level = LoggingConfig().get_level(logger_name, level)
+    global loggers_initial
+    initial_level = check_log_level(requested_level, logging.WARNING, name=logger_name)
+    loggers_initial[logger_name] = requested_level
+    level = LoggingConfig().get_level(logger_name, initial_level)
     logger.debug("Logger {} will be set to {} level".format(logger_name, get_log_level_name(level)))
     l = logging.getLogger(logger_name)
     l.setLevel(level)
-    logger_names.add(logger_name)
     return l
 
 def get_logger_names():
-    return list(logger_names)
+    return copy(list( loggers_initial.keys() ))
 
-def check_log_level(log_level_name, default_value):
+def get_initial_logger_state():
+    return copy(loggers_initial)
+
+def check_log_level(log_level_name, default_value, name=None):
     # type: (str, int) -> int
     """
     Verifies a logging level string - returns the requested log level
@@ -45,6 +49,10 @@ def check_log_level(log_level_name, default_value):
     try:
         return logging._checkLevel(log_level_name.upper())
     except ValueError:
+        if name:
+            logger.error("Invalid log value {} supplied for logger {}, using {}".format(log_level_name, name, default_value))
+        else:
+            logger.error("Invalid log value {} supplied, using {}".format(log_level_name, default_value))
         return default_value
 
 def get_log_level_for_logger(logger_name):
