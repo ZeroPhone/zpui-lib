@@ -126,11 +126,11 @@ class TestIntegerAdjustInput(unittest.TestCase):
         """Tests whether the IntegerAdjustInput outputs data on screen when it's ran"""
         i = get_mock_input()
         o = get_mock_output()
-        ii = IntegerAdjustInput(1, i, o, message="Test:", name=ii_name)
+        ii = IntegerAdjustInput(1, i, o, min=0, max=100, message="Test:", name=ii_name)
 
         def scenario():
             assert o.display_data.called
-            assert o.display_data.call_args[0][0].strip() == 'Test:'
+            assert o.display_data.call_args[0][0].strip() == 'Test: (0-100)'
             assert o.display_data.call_args[0][1].strip() == str(1)
             for i in range(5):
                 execute_shorthand(ii, "u")

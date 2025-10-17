@@ -43,8 +43,9 @@ class IntegerAdjustInput(BaseUIElement):
 
         """
         BaseUIElement.__init__(self, i, o, name)
-        if type(number) != int:
-            raise ValueError("IntegerAdjustInput operates on integers!")
+        self.orig_number = number
+        if not isinstance(number, int):
+            number = int(number)
         self.number = number
         self.min = min
         self.max = max
@@ -123,7 +124,11 @@ class IntegerAdjustInput(BaseUIElement):
         else:
             number_str = str(self.number)
         number_str = number_str.rjust(self.o.cols)
-        return [self.message, number_str]
+        message_str = self.message
+        message_str_int = "{} ({}-{})".format(message_str, self.min, self.max)
+        if len(message_str_int) <= self.o.cols and self.min != None and self.max != None:
+            message_str = message_str_int
+        return [message_str, number_str]
 
     @to_be_foreground
     def refresh(self):
