@@ -15,6 +15,22 @@ basestring_hack()
 
 logger = setup_logger(__name__, "info")
 
+global_config = {}
+
+# Documentation building process has problems with this import
+try:
+    import ui.config_manager as config_manager
+except (ImportError, AttributeError):
+    pass
+else:
+    cm = config_manager.get_ui_config_manager()
+    cm.set_path("ui/configs")
+    try:
+        global_config = cm.get_global_config()
+    except OSError as e:
+        logger.error("Config files not available, running under ReadTheDocs?")
+        logger.exception(e)
+
 def internal_callback_in_background(method):
     """
       A decorator for UI elements' internal methods that need to bring the UI element
@@ -32,6 +48,9 @@ def internal_callback_in_background(method):
 
 class BaseUIElement(object):
 
+    view_mixin = None
+    config_key = "base_ui"
+
     def __init__(self, i, o, name=None, override_left=True, input_necessary=True):
         """
         Sets the most basic variables and checks whether the input object
@@ -46,6 +65,7 @@ class BaseUIElement(object):
         self.overlays = []
         self._in_foreground = Event()
         self._in_background = Event()
+        self._inhibit_refresh = Event()
         self._input_necessary = input_necessary
         self._override_left = override_left
         if not i and input_necessary:
@@ -281,14 +301,6 @@ class BaseUIElement(object):
             else:
                 logger.warning("{}: no input device object supplied, not setting the keymap".format(self.name))
 
-    @to_be_foreground
-    def refresh(self):
-        """
-        Is called when the screen contents have to be updated.
-        To be implemented by a child object.
-        """
-        raise NotImplementedError
-
     def determine_location(self):
         """ Figures out the place in ZPUI where the UI element is summoned from. Pretty cool!"""
         cwd = os.getcwd()
@@ -331,3 +343,82 @@ class BaseUIElement(object):
             return False
         self.name = "{} from {}:{}".format(self.__class__.__name__, filename, lineno)
         logger.warning("No name supplied for an UI element {} at {}, generated a new name: {}".format(self.__class__.__name__, id(self), repr(self.name)))
+
+    def set_views_dict(self):
+        """
+        Sets the views dict and adds view mixins to views if mixins are available
+        and adding one is appropriate.
+        """
+        self.views = self.get_views_dict()
+        if self.view_mixin:
+            class_name = self.__class__.__name__
+            for view_name, view_class in self.views.items():
+                if view_class.use_mixin:
+                    name = "{}-{}".format(view_name, class_name)
+                    logger.debug("Subclassing {} into {}".format(view_name, name))
+                    self.views[view_name] = type(name, (self.view_mixin, view_class), {})
+
+    def set_view_by_config(self, config):
+        view = None
+        self.set_views_dict()
+        if self.name in config.get("custom_views", {}).keys():
+            view_config = config["custom_views"][self.name]
+            if isinstance(view_config, basestring):
+                if view_config not in self.views:
+                    logger.warning('Unknown view "{}" given for UI element "{}"!'.format(view_config, self.name))
+                else:
+                    view = self.views[view_config]
+            elif isinstance(view_config, dict):
+                raise NotImplementedError
+                # This is the part where fine-tuning views will be possible,
+                # once passing args&kwargs is implemented, that is
+            else:
+                logger.error(
+                    "Custom view description can only be a string or a dictionary; is {}!".format(type(view_config)))
+        elif not view and "default" in config:
+            view_config = config["default"]
+            if isinstance(view_config, basestring):
+                if view_config not in self.views:
+                    logger.warning('Unknown view "{}" given for UI element "{}"!'.format(view_config, self.name))
+                else:
+                    view = self.views[view_config]
+            elif isinstance(view_config, dict):
+                raise NotImplementedError  # Again, this is for fine-tuning
+        elif not view:
+            logger.debug("Getting default view for element {}".format(self.name))
+            view = self.get_default_view()
+        self.set_view(view)
+
+    def set_view(self, view):
+        self.view = view(self.o, self)
+
+    @to_be_foreground
+    def refresh(self):
+        """
+        Is called when the screen contents have to be updated.
+        To be implemented by a child object.
+        """
+    @to_be_foreground
+    def refresh(self):
+        """ A placeholder to be used for BaseUIElement. """
+        if self._inhibit_refresh.is_set():
+            return False
+        if hasattr(self, "view"):
+            self.view.refresh()
+        else:
+            raise NotImplementedError
+        return True
+
+    def get_views_dict(self):
+        """
+        Is called if you explicitly set up your UI element to accept views.
+        Expected to return a list of all available views.
+        """
+        raise NotImplementedError
+
+    def get_default_view(self):
+        """
+        Decides on the view to use for a BaseListUIElement when config file has
+        no information on it.
+        """
+        raise NotImplementedError

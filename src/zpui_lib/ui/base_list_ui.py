@@ -8,28 +8,11 @@ from threading import Event
 
 from zpui_lib.ui.entry import Entry
 from zpui_lib.ui.canvas import Canvas, swap_colors
-from zpui_lib.ui.base_ui import BaseUIElement
+from zpui_lib.ui.base_ui import BaseUIElement, global_config
 from zpui_lib.ui.utils import to_be_foreground, clamp_list_index
 from zpui_lib.helpers import setup_logger
 
 logger = setup_logger(__name__, "warning")
-
-global_config = {}
-
-# Documentation building process has problems with this import
-try:
-    import ui.config_manager as config_manager
-except (ImportError, AttributeError):
-    pass
-else:
-    cm = config_manager.get_ui_config_manager()
-    cm.set_path("ui/configs")
-    try:
-        global_config = cm.get_global_config()
-    except OSError as e:
-        logger.error("Config files not available, running under ReadTheDocs?")
-        logger.exception(e)
-
 
 class BaseListUIElement(BaseUIElement):
     """This is a base UI element for list-like UI elements.
@@ -47,7 +30,6 @@ class BaseListUIElement(BaseUIElement):
     exit_entry = ["Back", "exit"]
 
     config_key = "base_list_ui"
-    view_mixin = None
 
     def __init__(self, contents, i, o, name=None, entry_height=1, append_exit=True, exitable=True, scrolling=True,
                  config=None, keymap=None, navigation_wrap=True, override_left=True):
@@ -68,12 +50,17 @@ class BaseListUIElement(BaseUIElement):
         }
         self.navigation_wrap = navigation_wrap
         self.reset_scrolling()
+        # all BaseListUIElements are expected to implement views
         self.config = config if config is not None else global_config
         self.set_view_by_config(self.config.get(self.config_key, {}))
+        # 'contents' refers to the view object, so it has to be called after setting it
         self.set_contents(contents)
-        self.inhibit_refresh = Event()
 
     def get_views_dict(self):
+        """
+        Is called if you explicitly set up your UI element to accept views.
+        Expected to return a list of all available views.
+        """
         return {
             "TextView": TextView,
             "EightPtView": EightPtView,
@@ -84,53 +71,11 @@ class BaseListUIElement(BaseUIElement):
             "SimpleGraphicalView": EightPtView  # Not a descriptive name - left for compatibility
         }
 
-    def set_views_dict(self):
-        self.views = self.get_views_dict()
-        if self.view_mixin:
-            class_name = self.__class__.__name__
-            for view_name, view_class in self.views.items():
-                if view_class.use_mixin:
-                    name = "{}-{}".format(view_name, class_name)
-                    logger.debug("Subclassing {} into {}".format(view_name, name))
-                    self.views[view_name] = type(name, (self.view_mixin, view_class), {})
-
-    def set_view_by_config(self, config):
-        view = None
-        self.set_views_dict()
-        if self.name in config.get("custom_views", {}).keys():
-            view_config = config["custom_views"][self.name]
-            if isinstance(view_config, basestring):
-                if view_config not in self.views:
-                    logger.warning('Unknown view "{}" given for UI element "{}"!'.format(view_config, self.name))
-                else:
-                    view = self.views[view_config]
-            elif isinstance(view_config, dict):
-                raise NotImplementedError
-                # This is the part where fine-tuning views will be possible,
-                # once passing args&kwargs is implemented, that is
-            else:
-                logger.error(
-                    "Custom view description can only be a string or a dictionary; is {}!".format(type(view_config)))
-        elif not view and "default" in config:
-            view_config = config["default"]
-            if isinstance(view_config, basestring):
-                if view_config not in self.views:
-                    logger.warning('Unknown view "{}" given for UI element "{}"!'.format(view_config, self.name))
-                else:
-                    view = self.views[view_config]
-            elif isinstance(view_config, dict):
-                raise NotImplementedError  # Again, this is for fine-tuning
-        elif not view:
-            logger.debug("Getting default view for element {}".format(self.name))
-            view = self.get_default_view()
-        self.set_view(view)
-
-    def set_view(self, view):
-        self.view = view(self.o, self)
-
     def get_default_view(self):
-        """Decides on the view to use for UI element when config file has
-        no information on it."""
+        """
+        Decides on the view to use for a BaseListUIElement when config file has
+        no information on it.
+        """
         if "b&w" in self.o.type:
             # typical displays
             if self.o.width <= 240:
@@ -225,11 +170,11 @@ class BaseListUIElement(BaseUIElement):
             If not possible, moves as far as it can."""
         if not counter:
             counter = self.view.get_entry_count_per_screen()
-        self.inhibit_refresh.set()
+        self._inhibit_refresh.set()
         while (counter > 0) if self.navigation_wrap else (counter > 0 and self.pointer < (len(self.contents) - 1)):
             counter -= 1
             self.move_down()
-        self.inhibit_refresh.clear()
+        self._inhibit_refresh.clear()
         self.refresh()
         self.reset_scrolling()
         return True
@@ -262,11 +207,11 @@ class BaseListUIElement(BaseUIElement):
             If not possible, moves as far as it can."""
         if not counter:
             counter = self.view.get_entry_count_per_screen()
-        self.inhibit_refresh.set()
+        self._inhibit_refresh.set()
         while (counter != 0) if self.navigation_wrap else (counter != 0 and self.pointer != 0):
             counter -= 1
             self.move_up()
-        self.inhibit_refresh.clear()
+        self._inhibit_refresh.clear()
         self.refresh()
         self.reset_scrolling()
         return True
@@ -390,14 +335,6 @@ class BaseListUIElement(BaseUIElement):
 
     def add_view_wrapper(self, wrapper):
         self.view.wrappers.append(wrapper)
-
-    @to_be_foreground
-    def refresh(self):
-        """ A placeholder to be used for BaseUIElement. """
-        if self.inhibit_refresh.is_set():
-            return False
-        self.view.refresh()
-        return True
 
 
 # Views.
