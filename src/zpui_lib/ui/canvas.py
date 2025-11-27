@@ -387,7 +387,7 @@ class Canvas(object):
         cy = self.height // 2 if y == None else y // 2
         return cx, cy
 
-    def center_box(self, wb, hb, w=None, h=None):
+    def center_box(self, wb, hb, w=None, h=None, return_four=False):
         """
         Get coordinates to center a (``wb``, ``wh``) box inside an area of (``w``, ``h``).
         Basically, returns coordinates for the top left corner of a centered object.
@@ -398,7 +398,10 @@ class Canvas(object):
         if h == None: h = self.height
         cpx = (w - wb) // 2
         cpy = (h - hb) // 2
-        return cpx, cpy
+        if return_four:
+            return (cpx, cpy, cpx+wb, cpy+hb)
+        else:
+            return cpx, cpy
 
     def invert(self):
         """
@@ -506,18 +509,21 @@ class Canvas(object):
             coord_pairs[i] = self.check_coordinates(coord_pair)
         return tuple(coord_pairs)
 
-    def centered_text(self, text, cw=None, ch=None, font=None):
+    def centered_text(self, text, cw=None, ch=None, ox=0, oy=0, font=None):
         # type: str -> None
         """
         Draws centered text on the canvas. This is mostly a convenience function,
-        used in some UI elements. You can also pass alternate
-        screen center values so that text is centered related to those,
-        as opposed to the real screen center.
+        used in some UI elements. You can pass alternate
+        screen center values (``cw``, ``ch``) so that text is centered related to those,
+        as opposed to the actual screen center.
 
+        You can also pass offsets (``ox`` and ``oy``) - for instance, pass ``oy=-32``
+        to bring text 32 pixels upwards.
         """
         font = self.decypher_font_reference(font)
         coords = self.get_centered_text_bounds(text, font=font, ch=ch, cw=cw)
-        self.text(text, (coords.left, coords.top), font=font)
+        offset_coords = (coords.left + ox, coords.top + oy)
+        self.text(text, offset_coords, font=font)
         self.display_if_interactive()
 
     def get_text_bounds(self, text, font=None):
