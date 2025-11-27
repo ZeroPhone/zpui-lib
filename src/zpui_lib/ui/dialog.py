@@ -1,7 +1,7 @@
 from time import sleep
 
 from zpui_lib.ui.base_ui import BaseUIElement
-from zpui_lib.ui.canvas import Canvas, swap_colors
+from zpui_lib.ui.canvas import Canvas, swap_colors, expand_coords
 from zpui_lib.ui.funcs import format_for_screen as ffs
 from zpui_lib.helpers import setup_logger
 
@@ -131,6 +131,8 @@ class DialogBox(BaseUIElement):
 
 
 class TextView(object):
+
+    scroll_is_vertical = False
 
     def __init__(self, o, el):
         self.o = o

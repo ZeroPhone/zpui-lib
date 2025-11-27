@@ -4,7 +4,8 @@ from time import sleep
 from threading import Lock, Event
 from functools import wraps
 
-from zpui_lib.ui.base_ui import BaseUIElement
+from zpui_lib.ui.base_ui import BaseUIElement, global_config
+from zpui_lib.ui.number_input import TextView as BaseTextView
 from zpui_lib.ui.utils import to_be_foreground, check_value_lock
 from zpui_lib.ui.canvas import Canvas
 from zpui_lib.helpers import setup_logger, remove_left_failsafe, cb_needs_key_state, \
@@ -85,7 +86,9 @@ class NumpadCharInput(BaseUIElement):
     current_letter_num = 0
     __locked_name__ = None
 
-    def __init__(self, i, o, message="Value:", value="", name="NumpadCharInput", mapping=None):
+    config_key = "numpad_char_input"
+
+    def __init__(self, i, o, message="Value:", value="", name="NumpadCharInput", mapping=None, config=None):
         """Initialises the NumpadCharInput object.
 
         Args:
@@ -107,6 +110,29 @@ class NumpadCharInput(BaseUIElement):
             self.mapping = copy(self.default_mapping)
         self.value_lock = Lock()
         self.value_accepted = False
+        # view setting
+        self.config = config if config is not None else global_config
+        self.set_view_by_config(self.config.get(self.config_key, {}))
+
+    def get_views_dict(self):
+        return {
+                "TextView":TextView,
+                "SixteenPtView":SixteenPtView,
+                }
+
+    def get_default_view(self):
+        """
+        Decides on the view to use for a BaseListUIElement when config file has
+        no information on it.
+        """
+        if "b&w" in self.o.type and self.o.width >= 240 and self.o.height >= 240:
+            # small displays get the text output too
+            return self.views["SixteenPtView"]
+            #return self.views["TwiceSixteenPtView"]
+        elif "char" in self.o.type:
+            return self.views["TextView"]
+        else:
+            raise ValueError("Unsupported display type: {}".format(repr(self.o.type)))
 
     def before_foreground(self):
         self.value_accepted = False
@@ -364,56 +390,6 @@ class NumpadCharInput(BaseUIElement):
         """
         return self.value
 
-    def get_displayed_data(self):
-        """Experimental: not meant for 2x16 displays
-
-        Formats the value and the message to show it on the screen, then returns a list that can be directly used by o.display_data"""
-        displayed_data = [self.message]
-        screen_rows = self.o.rows
-        screen_cols = self.o.cols
-        static_line_count = 2 #One for message, another for context key labels
-        value = self.get_displayed_value()
-        lines_taken_by_value = (len(value) // (screen_cols)) + 1
-        for line_i in range(lines_taken_by_value):
-            displayed_data.append(value[(line_i*screen_cols):][:screen_cols])
-        empty_line_count = screen_rows - (static_line_count + lines_taken_by_value)
-        for _ in range(empty_line_count):
-            displayed_data.append("") #Just empty line
-        third_line_length = screen_cols//3
-        button_labels = [button.center(third_line_length) for button in self.bottom_row_buttons]
-        last_line = "".join(button_labels)
-        displayed_data.append(last_line)
-        return displayed_data
-
-    @to_be_foreground
-    def refresh(self):
-        """Function that is called each time data has to be output on display"""
-        if "b&w" not in self.o.type or self.o.width < 240 or self.o.height < 240: # small displays get the text output
-            cursor_y, cursor_x = divmod(self.position, self.o.cols)
-            cursor_y += 1
-            self.o.setCursor(cursor_y, cursor_x)
-            self.o.display_data(*self.get_displayed_data())
-        else:
-            image = self.get_graphic()
-            self.o.display_image(image)
-        logger.debug("{}: refreshed data on display".format(self.name))
-
-    def get_graphic(self):
-        charwidth = 8
-        charheight = 16
-        font = ("Fixedsys62.ttf", charheight)
-        c = Canvas(self.o)
-        x_offset = 5
-        y_offset = 5
-        c.text(self.message, (x_offset, y_offset), font=font)
-        cols = (self.o.width - x_offset) // charwidth
-        value = self.get_displayed_value()
-        screenfuls = int(math.ceil( len(value)/cols ))
-        for i in range(screenfuls):
-            line = value[i*cols:][:cols]
-            c.text(line, (x_offset, y_offset+(i+1)*charheight), font=font)
-        return c.get_image()
-
     #Debug-related functions.
 
     def print_value(self):
@@ -577,3 +553,67 @@ class NumpadKeyboardInput(NumpadCharInput):
         # hmmm todo
         # beepy layer would be useful
         return letter
+
+
+class TextView(BaseTextView):
+
+    def get_displayed_data(self):
+        """
+        Experimental: not meant for 2x16 displays
+
+        Formats the value and the message to show it on the screen, then returns a list that can be directly used by o.display_data
+        """
+        displayed_data = [self.el.message]
+        screen_rows = self.o.rows
+        screen_cols = self.o.cols
+        static_line_count = 2 #One for message, another for context key labels
+        value = self.el.get_displayed_value()
+        lines_taken_by_value = (len(value) // (screen_cols)) + 1
+        for line_i in range(lines_taken_by_value):
+            displayed_data.append(value[(line_i*screen_cols):][:screen_cols])
+        empty_line_count = screen_rows - (static_line_count + lines_taken_by_value)
+        for _ in range(empty_line_count):
+            displayed_data.append("") #Just empty line
+        third_line_length = screen_cols//3
+        button_labels = [button.center(third_line_length) for button in self.el.bottom_row_buttons]
+        last_line = "".join(button_labels)
+        displayed_data.append(last_line)
+        return displayed_data
+
+    def refresh(self):
+        """
+        Function that is called each time data has to be output on display
+        """
+        cursor_y, cursor_x = divmod(self.el.position, self.o.cols)
+        cursor_y += 1
+        self.o.setCursor(cursor_y, cursor_x)
+        self.o.display_data(*self.get_displayed_data())
+        logger.debug("{}: refreshed data on display".format(self.el.name))
+
+
+class SixteenPtView(TextView):
+
+    charwidth = 8
+    charheight = 16
+
+    def get_graphic(self):
+        font = ("Fixedsys62.ttf", self.charheight)
+        c = Canvas(self.o)
+        x_offset = 5
+        y_offset = 5
+        c.text(self.el.message, (x_offset, y_offset), font=font)
+        cols = (self.o.width - x_offset) // self.charwidth
+        value = self.el.get_displayed_value()
+        screenfuls = int(math.ceil( len(value)/cols ))
+        for i in range(screenfuls):
+            line = value[i*cols:][:cols]
+            c.text(line, (x_offset, y_offset+(i+1)*self.charheight), font=font)
+        return c.get_image()
+
+    def refresh(self):
+        """
+        Function that is called each time data has to be output on display
+        """
+        image = self.get_graphic()
+        self.o.display_image(image)
+        logger.debug("{}: refreshed data on display".format(self.el.name))

@@ -2,7 +2,7 @@ from time import sleep
 from copy import copy
 
 from zpui_lib.ui.utils import to_be_foreground
-from zpui_lib.ui.base_ui import BaseUIElement
+from zpui_lib.ui.base_ui import BaseUIElement, global_config
 from zpui_lib.helpers import setup_logger
 logger = setup_logger(__name__, "warning")
 
@@ -24,7 +24,9 @@ class IntegerAdjustInput(BaseUIElement):
     number = 0
     selected_number = None
 
-    def __init__(self, number, i, o, message="Pick a number:", interval=1, name="IntegerAdjustInput", mode="normal", max=None, min=None):
+    config_key = "integer_adjust"
+
+    def __init__(self, number, i, o, message="Pick a number:", interval=1, name="IntegerAdjustInput", mode="normal", max=None, min=None, config=None):
         """Initialises the IntegerAdjustInput object.
 
         Args:
@@ -54,6 +56,9 @@ class IntegerAdjustInput(BaseUIElement):
         self.message = message
         self.mode = mode
         self.interval = interval
+        # a little view handling
+        self.config = config if config is not None else global_config
+        self.set_view_by_config(self.config.get(self.config_key, {}))
 
     def get_return_value(self):
         return self.selected_number
@@ -118,19 +123,48 @@ class IntegerAdjustInput(BaseUIElement):
         if self.max is not None and self.number > self.max:
             self.number = self.max
 
-    def get_displayed_data(self):
-        if self.mode == "hex":
-            number_str = hex(self.number)
+    def get_views_dict(self):
+        return {
+                "TextView":TextView,
+                #"SixteenPtView":SixteenPtView,
+                }
+
+    def get_default_view(self):
+        """
+        Decides on the view to use for a BaseListUIElement when config file has
+        no information on it.
+        """
+        #if "b&w" in self.o.type:
+        #    # typical displays
+        #    if self.o.width <= 240:
+        #        return self.views["SixteenPtView"]
+        #    else:
+        #        return self.views["TwiceSixteenPtView"]
+        #elif "char" in self.o.type:
+        if "char" in self.o.type:
+            return self.views["TextView"]
         else:
-            number_str = str(self.number)
+            raise ValueError("Unsupported display type: {}".format(repr(self.o.type)))
+
+class TextView():
+
+    def __init__(self, o, ui_el):
+        self.o = o
+        self.el = ui_el
+
+    def get_displayed_data(self):
+        if self.el.mode == "hex":
+            number_str = hex(self.el.number)
+        else:
+            number_str = str(self.el.number)
         number_str = number_str.rjust(self.o.cols)
-        message_str = self.message
-        message_str_int = "{} ({}-{})".format(message_str, self.min, self.max)
-        if len(message_str_int) <= self.o.cols and self.min != None and self.max != None:
+        message_str = self.el.message
+        message_str_int = "{} ({}-{})".format(message_str, self.el.min, self.el.max)
+        if len(message_str_int) <= self.o.cols and self.el.min != None and self.el.max != None:
             message_str = message_str_int
         return [message_str, number_str]
 
-    @to_be_foreground
     def refresh(self):
-        logger.debug("{0}: refreshed data on display".format(self.name))
+        logger.debug("{0}: refreshed data on display".format(self.el.name))
         self.o.display_data(*self.get_displayed_data())
+
