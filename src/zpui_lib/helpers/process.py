@@ -18,7 +18,7 @@ class ProHelper:
     default_read_size = 1024
     encoding = "utf-8"
 
-    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None, convert_output=True):
+    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None, lc_all="C", convert_output=True):
         self.command = command
         self.shell = shell
         self.cwd = cwd
@@ -28,6 +28,7 @@ class ProHelper:
         self.convert_output = convert_output
         if self.output_callback == 'print':
             self.output_callback = self.print_output
+        self.lc_all = lc_all
 
     def run(self):
         """
@@ -36,7 +37,9 @@ class ProHelper:
         """
         if self.use_terminal:
             self.terminal, self.s = pty.openpty()
-            self.process = subprocess.Popen(self.command, stdin=self.s, stdout=self.s, stderr=self.s, shell=self.shell, cwd=self.cwd, close_fds=True, **self.popen_kwargs)
+            env = {}
+            if self.lc_all: env["LC_ALL"] = self.lc_all
+            self.process = subprocess.Popen(self.command, stdin=self.s, stdout=self.s, stderr=self.s, shell=self.shell, cwd=self.cwd, env=env, close_fds=True, **self.popen_kwargs)
         else:
             raise NotImplementedException
 
