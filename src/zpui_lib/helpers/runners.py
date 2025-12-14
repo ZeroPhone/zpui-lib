@@ -11,11 +11,15 @@ class BooleanEvent:
 
     __nonzero__ = __bool__
 
-    def set(self, state):
-        if state:
+    def set(self, state=None):
+        if state == None or bool(state) == True:
             self._e.set()
         else:
             self._e.clear()
+
+    def clear(self):
+        self._e.clear()
+
 
 class Oneshot:
     """Oneshot runner for callables. Each instance of Oneshot will only run once, unless reset.
