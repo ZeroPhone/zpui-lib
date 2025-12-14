@@ -6,7 +6,7 @@ from time import time
 from zpui_lib.ui.canvas import Canvas
 from zpui_lib.ui.refresher import Refresher
 from zpui_lib.ui.utils import clamp, Chronometer, to_be_foreground, Rect
-from zpui_lib.helpers import setup_logger
+from zpui_lib.helpers import setup_logger, BooleanEvent
 
 """
 These UI elements are used to show the user that something is happening in the background.
@@ -48,7 +48,12 @@ class BaseLoadingIndicator(Refresher):
     def __init__(self, i, o, on_left=None, *args, **kwargs):
         self._progress = 0
         if on_left:
-            self.set_on_left(on_left)
+            if callable(on_left):
+                self.set_on_left(on_left)
+            else:
+                raise ValueError("on_left not callable!")
+        else:
+            self.left_pressed = BooleanEvent()
         keymap = kwargs.get("keymap", {})
         if "KEY_LEFT" not in keymap:
             keymap["KEY_LEFT"] = "on_left"
@@ -64,10 +69,10 @@ class BaseLoadingIndicator(Refresher):
         pass
 
     def on_left(self):
-        if callable(self.on_left_cb):
+        if self.on_left_cb:
             self.on_left_cb()
         else:
-            logger.warning("{}: User pressed LEFT but there's no LEFT handler, bad UX!".format(self.name))
+            self.left_pressed.set()
 
     def set_message(self, new_message):
         self.message = new_message
