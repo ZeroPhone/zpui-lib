@@ -222,7 +222,7 @@ class Ticker(object):
 
 Rect = namedtuple('Rect', ['left', 'top', 'right', 'bottom'])
 
-def fit_image_to_screen(image, o, resampling=Image.BOX, fill_color="black"):
+def fit_image_to_screen(image, o, resampling="BOX", fill_color="black"):
     """Fits a given image to fit on any sized screen whilst maintaining the aspect ratio.
     Any remaining space is filled with borders. The resized image is returned as ``image``.
 
@@ -230,8 +230,11 @@ def fit_image_to_screen(image, o, resampling=Image.BOX, fill_color="black"):
 
         * ``image``: A PIL image to be resized.
         * ``o``: output device object. Used to find the width and height of the screen.
-        * ``resampling=PIL.Image.BOX``: PIL resampling algorithm to be used during resizing.
+        * ``resampling="BOX" (PIL.Image.BOX)``: PIL resampling algorithm to be used during resizing.
+        You can supply a string (to avoid importing PIL), or supply an algorithm enum variable (i.e. Image.BOX) directly.
         See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters ."""
+    if isinstance(resampling, basestring):
+        resampling = getattr(Image, resampling)
     return fit_image_to_dims(image, o.width, o.height, resampling=resampling, fill_color=fill_color)
 
 def fit_image_to_dims(image, width, height, resampling=Image.BOX, fill_color = "black"):
