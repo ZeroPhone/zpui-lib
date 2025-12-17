@@ -61,7 +61,7 @@ class DialogBox(BaseUIElement):
             if self.o.width < 240 or self.o.height < 240:
                 view_class = GraphicalView
             else: # screen large enough!
-                view_class = pt16GraphicalView
+                view_class = FancyGraphicalView
         elif "char" in self.o.type:
             view_class = TextView
         else:
@@ -128,6 +128,13 @@ class DialogBox(BaseUIElement):
 
     def refresh(self):
         self.view.refresh()
+
+    def deactivate(self):
+        # if the previous image is present, write it back, to improve UX and avoid consequent dialog boxes writing over each other
+        image = getattr(self.view, "previous_image", None)
+        if image != None:
+            self.o.display_image(image)
+        BaseUIElement.deactivate(self)
 
 
 class TextView(object):
@@ -223,3 +230,99 @@ class pt16GraphicalView(GraphicalView):
     char_width = 8
     font = ("Fixedsys62.ttf", char_height)
 
+class FancyGraphicalView(GraphicalView):
+
+    scroll_is_vertical = False
+
+    char_height = 16
+    char_width = 8
+    font = ("Fixedsys62.ttf", char_height)
+
+    previous_image = None
+    first_run = True
+
+    box_height_mul = 1.4
+    box_width_mul = 1.2
+    clear_mul = 0.025 # 5% of canvas height/width,  since it's applied to both sides
+
+    def get_image(self):
+        c = Canvas(self.o)
+        # only save image on first run
+        if self.o.current_image or self.previous_image:
+            # maybe TODO next time get a previous-context image? todo allow that if the image is from the "main" context?
+            if self.first_run:
+                #print("Saving previous image")
+                self.previous_image = self.o.current_image
+                self.first_run = False
+            #if self.previous_image != None:
+            c.paste(self.previous_image, (0, 0))
+        else:
+            if getattr(self.el, "context", None):
+                context = self.el.context
+                self.previous_image = context.get_previous_context_image()
+                if self.previous_image:
+                    c.paste(self.previous_image, (0, 0))
+
+        # shamelessly reusing code from the simpler graphicalview
+        text_height = 0
+        cols = (self.o.width)//self.char_width
+        formatted_message = ffs(self.el.message, cols)
+        max_len = max([len(m) for m in formatted_message])
+        text_width = max_len*self.char_width
+        # this checks if the text overfills the textbox vertically, but I don't wanna deal with it for this view just yet
+        #if len(formatted_message)*(char_height+2) > self.o.height - char_height - 2:
+        #    raise ValueError("DialogBox {}: message is too long to fit on the screen: {}".format(self.el.name, formatted_message))
+        for line in formatted_message:
+            text_height += self.char_height + 2
+
+        labels_height = int(self.char_height * 1.5)
+        labels_width = 0
+        # pre-calculating width of all labels
+        for i, value in enumerate(self.el.values):
+            label = value[0]
+            label_start = self.positions[i]
+            labels_width += len(label) * self.char_width
+
+        # now, calculate the outer box dimensions
+        box_width_og = max(text_width, labels_width)
+        box_width = int(box_width_og * self.box_width_mul)
+        box_height_og = text_height + labels_height
+        box_height = int(box_height_og * self.box_height_mul)
+        box_coords = c.center_box(box_width, box_height, return_four=True)
+        e_coords = int(c.width*self.clear_mul), int(c.height*self.clear_mul), int(c.width*self.clear_mul), int(c.height*self.clear_mul)
+        clear_coords = expand_coords(box_coords, e_coords)
+        c.clear(clear_coords)
+        c.rectangle(box_coords)
+        # actually drawing text
+        top_x, top_y = box_coords[:2]
+        padding_y = int((box_height-box_height_og)//3)
+        total_padding_x = int(box_width-box_width_og)
+        text_y = top_y + padding_y
+        for line in formatted_message:
+            text_width = len(line)*self.char_width
+            x = top_x + box_width - text_width
+            c.text(line, (x, text_y), font=self.font)
+            text_y += self.char_height
+        # actually drawing labels
+        label_y = top_y + box_height - (labels_height+padding_y)
+        x = top_x + box_width - text_width
+        label_padding_x = int(total_padding_x // (len(self.el.values)+1))
+        label_start = top_x + box_width - labels_width - ((len(self.el.values)+1)*label_padding_x)
+        for i, value in enumerate(self.el.values):
+            label = value[0]
+            label_width = len(label)*self.char_width
+            if i == self.el.selected_option:
+                c.text(label, (label_start, label_y), font=self.font)
+                cursor_dims = (label_start, label_y, label_start+label_width, label_y + self.char_height)
+                #cursor_dims = (label_start-1, label_y-1, label_start+label_width+2, label_y + self.char_height+2)
+                # Drawing the cursor
+                cursor_image = c.get_image(coords=cursor_dims)
+                # inverting colors - background to foreground and vice-versa
+                cursor_image = swap_colors(cursor_image, c.default_color, c.background_color, c.background_color, c.default_color)
+                c.paste(cursor_image, coords=cursor_dims[:2])
+            else:
+                c.rectangle_wh((label_start-1, label_y-1, label_width+2, self.char_height+2),)
+                c.text(label, (label_start, label_y), font=self.font)
+            label_start += label_width + label_padding_x
+
+        return c.get_image()
