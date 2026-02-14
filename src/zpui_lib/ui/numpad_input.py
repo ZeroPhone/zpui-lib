@@ -5,6 +5,7 @@ from threading import Lock, Event
 from functools import wraps
 
 from zpui_lib.ui.base_ui import BaseUIElement, global_config
+from zpui_lib.ui.dialog import DialogBox
 from zpui_lib.ui.number_input import TextView as BaseTextView
 from zpui_lib.ui.utils import to_be_foreground, check_value_lock
 from zpui_lib.ui.canvas import Canvas
@@ -101,6 +102,7 @@ class NumpadCharInput(BaseUIElement):
         """
         BaseUIElement.__init__(self, i, o, name)
         self.message = message
+        self.initial_value = value
         self.value = value
         self.position = len(self.value)
         self.action_keys = copy(self.action_keys)
@@ -143,7 +145,7 @@ class NumpadCharInput(BaseUIElement):
 
     @property
     def is_active(self):
-        return self.in_foreground
+        return self.in_background
 
     def after_activate(self):
         self.o.noCursor()
@@ -160,9 +162,23 @@ class NumpadCharInput(BaseUIElement):
         self.check_character_state()
 
     def deactivate_if_first(self):
-        """ Deactivates the UI element if it hasn't yet had a character entered """
+        """
+        Deactivates the UI element if it hasn't yet had a character entered,
+        or if initial value has not yet been modified.
+        If neither are true, asks the user whether they want to interrupt input.
+        """
+        if self.value == self.initial_value:
+            logger.debug("Exiting on LEFT because initial value was unchanged")
+            self.key_deactivate()
         if self.position == 0:
             self.key_deactivate()
+        self.to_background()
+        db = DialogBox("ny", self.i, self.o, message="Exit?", name=f"{self.name} exit DialogBox")
+        result = db.activate()
+        if result:
+            self.key_deactivate()
+        else:
+            self.to_foreground()
 
     def accept_value(self):
         logger.info("{0}: accepted value".format(self.name))
@@ -171,8 +187,8 @@ class NumpadCharInput(BaseUIElement):
 
     # Functions processing user input.
 
-    # @cb_needs_key_state can't be applied on top since it will get applied to
-    # check_value_lock and set a flag on it (which will result in a confusing bug)
+    # @cb_needs_key_state has to be applied second (innermost); otherwise it will get applied to
+    # check_value_lock and set a flag on it, which will result in a confusing bug
     @check_value_lock
     @cb_needs_key_state
     def process_streaming_keycode(self, key_name, state=None, *args):
