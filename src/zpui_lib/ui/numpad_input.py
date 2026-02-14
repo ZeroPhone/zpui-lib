@@ -52,7 +52,7 @@ class NumpadCharInput(BaseUIElement):
 
     """
 
-    default_mapping = {"1":"1!?$&|\\",
+    default_mapping = {"1":"\x081!?$&|\\",
                "2":"abc2ABC",
                "3":"def3DEF",
                "4":"ghi4GHI",
@@ -262,6 +262,8 @@ class NumpadCharInput(BaseUIElement):
                     self.pending_counter = self.pending_counter_start
                     #Output things on display
             elif self.pending_character != key: # Currently another key pending
+                # First, let's check if the previous char was backspace
+                self.check_backspace_char()
                 # Advancing position and inserting a new letter
                 self.position += 1
                 # Starting with first letter in the mapping for current key
@@ -375,10 +377,24 @@ class NumpadCharInput(BaseUIElement):
             if self.pending_counter == 0:
                 self.skip() # advancing to the next character
 
+    def check_backspace_char(self):
+        if ord(self.value[-1]) == 0x08:
+            self.remove_letter_in_value() # for the backspace char itself
+            if self.value: # remove_letter will error out on empty value
+                self.remove_letter_in_value() # for the char before it
+            self.pending_character = None
+            return True
+        return False
+
     def skip(self):
-        #Counter reset
+        # In numpad input mode, advances ("skips") to the next empty "spot"
+        # once the pending timer runs out. Is also called on RIGHT key press!
+        # is the last pending character backspace perchance?
+        if self.check_backspace_char():
+            self.refresh()
+            return
+        # Advancing position so that cursor takes the next space
         self.pending_character = None
-        #Advancing position so that cursor takes the next space
         self.position += 1
         self.refresh()
 
@@ -591,6 +607,8 @@ class TextView(BaseTextView):
         screen_cols = self.o.cols
         static_line_count = 2 #One for message, another for context key labels
         value = self.el.get_displayed_value()
+        #value = value.replace(0x08, 0x11) # HD44780-specific replacement
+        # ^ this should prolly go into the HD44780 driver??? whenever that happens
         lines_taken_by_value = (len(value) // (screen_cols)) + 1
         for line_i in range(lines_taken_by_value):
             displayed_data.append(value[(line_i*screen_cols):][:screen_cols])
@@ -608,7 +626,7 @@ class TextView(BaseTextView):
         Function that is called each time data has to be output on display
         """
         cursor_y, cursor_x = divmod(self.el.position, self.o.cols)
-        cursor_y += 1
+        cursor_y += 1 # message line
         self.o.setCursor(cursor_y, cursor_x)
         self.o.display_data(*self.get_displayed_data())
         logger.debug("{}: refreshed data on display".format(self.el.name))
@@ -629,10 +647,39 @@ class SixteenPtView(TextView):
         cols = (self.o.width - x_offset) // self.charwidth
         value = self.el.get_displayed_value()
         screenfuls = int(math.ceil( len(value)/cols ))
+        backspace_position = None
+        if chr(0x08) in value:
+            backspace_position = value.rindex(chr(0x08))
+            value = value.replace(chr(0x08), " ")
         for i in range(screenfuls):
-            line = value[i*cols:][:cols]
-            c.text(line, (x_offset, y_offset+(i+1)*self.charheight), font=font)
+            text_y = y_offset+(i+1)*self.charheight
+            start_char = i*cols
+            if backspace_position != None:
+                # backspace in this row! let's get x,y for the top point of the backspace
+                if backspace_position in range(start_char, start_char+cols):
+                    backspace_i = backspace_position-start_char
+                    backspace_x = x_offset + backspace_i*self.charwidth
+                    print("bckp pos", backspace_position, (backspace_x, text_y))
+                    backspace_position = (backspace_x, text_y)
+            line = value[start_char:][:cols]
+            c.text(line, (x_offset, text_y), font=font)
+        if backspace_position != None:
+            # by now is a (x, y) coordinate of the backspace top point
+            self.draw_backspace(c, backspace_position)
         return c.get_image()
+
+    def draw_backspace(self, c, pos):
+        top_x, top_y = pos
+        # dash (-)
+        dash_y = top_y + self.charheight // 2
+        c.line((top_x, dash_y, top_x+self.charwidth, dash_y))
+        # two diagonal lines (<), from left to right
+        diag_height = int(self.charheight*0.3)
+        # one going upwards
+        c.line((top_x, dash_y, top_x+self.charwidth, dash_y-diag_height))
+        # one goign downwards
+        c.line((top_x, dash_y, top_x+self.charwidth, dash_y+diag_height))
+        # and that's it!
 
     def refresh(self):
         """
