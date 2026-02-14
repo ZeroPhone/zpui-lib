@@ -165,8 +165,14 @@ class NumpadCharInput(BaseUIElement):
         if self.value == self.initial_value:
             logger.debug("Exiting on LEFT because initial value was unchanged")
             self.key_deactivate()
+            return
         if self.position == 0:
             self.key_deactivate()
+            return
+        # we have non-zero input and it's not the initial value. ask the user now
+        self.ask_user_for_exit()
+
+    def ask_user_for_exit(self):
         self.to_background()
         db = DialogBox("ny", self.i, self.o, message="Exit?", name=f"{self.name} exit DialogBox")
         result = db.activate()
