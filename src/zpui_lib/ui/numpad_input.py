@@ -19,6 +19,9 @@ def check_position_overflow(condition):
     def decorator(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
+            # Sanity check
+            if self.position < 0:
+                self.position = 0
             #First, different checks depending on the type of check requested
             if condition == ">":
                 overflow = self.position > len(self.value) # The biggest difference should be 1 character - for when position has advanced, but no character has been input
@@ -65,14 +68,6 @@ class NumpadCharInput(BaseUIElement):
 
     held_mapping = {str(i):str(i) for i in range(10)}
 
-    action_keys = {
-               "KEY_ENTER":"accept_value",
-               "KEY_F1":"key_deactivate",
-               "KEY_LEFT":"deactivate_if_first",
-               "KEY_RIGHT":"skip",
-               "KEY_F2":"backspace",
-              }
-
     bottom_row_buttons = ["Cancel", "OK", "Erase"]
     spacer_character = ' '
 
@@ -100,12 +95,12 @@ class NumpadCharInput(BaseUIElement):
             * ``mapping``: alternative key-to-characters mapping to use
 
         """
+        self.action_keys = self.get_action_keys()
         BaseUIElement.__init__(self, i, o, name)
         self.message = message
         self.initial_value = value
         self.value = value
         self.position = len(self.value)
-        self.action_keys = copy(self.action_keys)
         if mapping is not None:
             self.mapping = copy(mapping)
         else:
@@ -266,10 +261,10 @@ class NumpadCharInput(BaseUIElement):
                     #Starting the "time before the character is accepted" countdown
                     self.pending_counter = self.pending_counter_start
                     #Output things on display
-            elif self.pending_character != key: #Currently another key pending
-                #Advancing position and inserting a new letter
+            elif self.pending_character != key: # Currently another key pending
+                # Advancing position and inserting a new letter
                 self.position += 1
-                #Starting with first letter in the mapping for current key
+                # Starting with first letter in the mapping for current key
                 self.current_letter_num = 0
                 letter = self.mapping[key][0]
                 if self.shifted:
@@ -278,35 +273,35 @@ class NumpadCharInput(BaseUIElement):
                     letter = self.alt_letter(letter)
                 self.insert_letter_in_value(letter)
                 if len(self.mapping[key]) == 1:
-                    #No other characters that could be entered
-                    #Thus, just setting pending_character to None
+                    # No other characters that could be entered
+                    # Thus, just setting pending_character to None
                     self.pending_character = None
-                    #Need to move forward once again - cursor still points at the previous character
+                    # Need to move forward once again - cursor still points at the previous character
                     self.position += 1
                 else:
-                    #There are other characters possible for the new letter
-                    #So, onto the "countdown before character accepted" mechanism
+                    # There are other characters possible for the new letter
+                    # So, onto the "countdown before character accepted" mechanism
                     self.pending_character = key
-                    #Starting the "time before the character is accepted" countdown
+                    # Starting the "time before the character is accepted" countdown
                     self.pending_counter = self.pending_counter_start
-                    #Output things on display
-            elif self.pending_character == key: #Current pending key is the same as the one pressed
-                #Just updating the value and resetting the countdown
+                    # Output things on display
+            elif self.pending_character == key: # Current pending key is the same as the one pressed
+                # Just updating the value and resetting the countdown
                 self.current_letter_num += 1
-                #Wrapping around in case of overflow
+                # Wrapping around in case of overflow
                 if self.current_letter_num not in range(len(self.mapping[key])):
                     self.current_letter_num = 0
                 letter = self.mapping[key][self.current_letter_num]
-                #Replacing the current character
+                # Replacing the current character
                 if self.shifted:
                     letter = self.shift_letter(letter)
                 if self.alted:
                     letter = self.alt_letter(letter)
                 self.update_letter_in_value(letter)
-                #For fast typists, not resetting the counter could be an option in the future
-                #That'd mean there'd be only 1 second in total to choose from all letters, so it needs to be tested
+                # For fast typists, not resetting the counter could be an option in the future
+                # That'd mean there'd be only 1 second in total to choose from all letters, so it needs to be tested
                 self.pending_counter = self.pending_counter_start
-            #Finally, output all changes to display
+            # Finally, output all changes to display
             self.refresh()
 
     def shift_letter(self, letter):
@@ -353,20 +348,20 @@ class NumpadCharInput(BaseUIElement):
     @check_position_overflow(">")
     def remove_letter_in_value(self):
         if self.position == 0 and not self.value:
-            #Nothing to be done
+            # Nothing to be done
             return None
         elif self.position in [len(self.value)-1] and self.pending_character is not None:
-            #Trying to remove the character which is currently pending
+            # Trying to remove the character which is currently pending
             self.pending_character = None
             self.value = self.value[:-1]
         elif self.position in range(len(self.value)):
-            #Inserting character in the middle of the string
+            # Inserting character in the middle of the string
             value_before_letter = self.value[:self.position-1]
             value_after_letter = self.value[self.position:]
-            self.value = "".join(value_before_letter, value_after_letter)
+            self.value = "".join([value_before_letter, value_after_letter])
             self.position -= 1
         elif self.position == len(self.value):
-            #Just removing the last character
+            # Just removing the last character
             self.value = self.value[:-1]
             self.position -= 1
 
@@ -375,7 +370,7 @@ class NumpadCharInput(BaseUIElement):
     @check_value_lock
     def check_character_state(self):
         if self.pending_character is not None:
-            #Character still pending
+            # Character still pending
             self.pending_counter -= 1
             if self.pending_counter == 0:
                 self.skip() # advancing to the next character
@@ -389,8 +384,18 @@ class NumpadCharInput(BaseUIElement):
 
     #Functions that set up the input listener
 
+    def get_action_keys(self):
+        action_keys = {
+           "KEY_ENTER":"accept_value",
+           "KEY_F1":"key_deactivate",
+           "KEY_LEFT":"deactivate_if_first",
+           "KEY_RIGHT":"skip",
+           "KEY_F2":"backspace",
+        }
+        return action_keys
+
     def generate_keymap(self):
-        return copy(self.action_keys)
+        return self.action_keys
 
     @to_be_foreground
     def configure_input(self):
@@ -492,15 +497,6 @@ class NumpadKeyboardInput(NumpadCharInput):
     keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
     shiftable_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".lower()
 
-    action_keys = {
-       "KEY_ENTER":"accept_value",
-       "KEY_F1":"deactivate",
-       "KEY_LEFT":"deactivate_if_first",
-       "KEY_RIGHT":"skip",
-       "KEY_F2":"backspace",
-       "KEY_BACKSPACE": "backspace"
-    }
-
     for c in keys:
         default_mapping[c] = c.lower()
     #    default_mapping[c] += c
@@ -531,6 +527,17 @@ class NumpadKeyboardInput(NumpadCharInput):
     # other, misc
     default_mapping["LEFTBRACE"] = "["
     default_mapping["RIGHTBRACE"] = "]"
+
+    def get_action_keys(self):
+        action_keys = {
+           "KEY_ENTER":"accept_value",
+           "KEY_F1":"deactivate",
+           "KEY_LEFT":"deactivate_if_first",
+           "KEY_RIGHT":"skip",
+           "KEY_F2":"backspace",
+           "KEY_BACKSPACE": "backspace"
+        }
+        return action_keys
 
     def shift_letter(self, letter):
         # there is a shift keymap! aayyy lmao
@@ -618,6 +625,7 @@ class SixteenPtView(TextView):
         x_offset = 5
         y_offset = 5
         c.text(self.el.message, (x_offset, y_offset), font=font)
+        # monospaced-only font processing
         cols = (self.o.width - x_offset) // self.charwidth
         value = self.el.get_displayed_value()
         screenfuls = int(math.ceil( len(value)/cols ))
