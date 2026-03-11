@@ -10,9 +10,9 @@ def passwd(username, password):
     status = ["unknown"] # hack, explained below
     def process_output(output):
         logger.debug("debug: calling process_output with {}".format(repr(output)))
-        if output.strip().startswith("Enter new UNIX password:"):
+        if output.strip().startswith("Enter new UNIX password:") or output.strip().startswith("New password:"):
             status[0] = "enter"
-        elif output.strip().startswith("Retype new UNIX password:"):
+        elif output.strip().startswith("Retype new UNIX password:") or output.strip().startswith("Retype new password:"):
             status[0] = "repeat"
         elif output.strip().startswith("passwd: password updated successfully"):
             status[0] = "success"
