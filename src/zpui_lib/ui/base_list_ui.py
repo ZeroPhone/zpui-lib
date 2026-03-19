@@ -78,7 +78,7 @@ class BaseListUIElement(BaseUIElement):
         """
         if "b&w" in self.o.type:
             # typical displays
-            if self.o.width <= 240:
+            if self.o.width < 240:
                 return self.views["SixteenPtView"]
             else:
                 return self.views["TwiceSixteenPtView"]

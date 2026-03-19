@@ -39,7 +39,7 @@ class GridMenu(Menu):
         if "b&w" in self.o.type:
             # typical displays
             #if self.o.width:
-            if self.o.width <= 240:
+            if self.o.width < 240:
                 view = self.views["GridView"]
                 view.entry_width = 32
                 return view
