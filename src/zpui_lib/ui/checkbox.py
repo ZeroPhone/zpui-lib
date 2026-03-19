@@ -87,7 +87,7 @@ class Checkbox(BaseListUIElement):
     @to_be_foreground
     def select_entry(self):
         """ Changes the current element's state to the opposite.
-        |Is typically used as a callback from input event processing thread. Afterwards, refreshes the screen."""
+        Is typically used as a callback from input event processing thread. Afterwards, refreshes the screen."""
         logger.debug("element selected")
         entry_state = self.get_entry_default_state(self.contents[self.pointer])
         if entry_state == self.exit_entry[2]:

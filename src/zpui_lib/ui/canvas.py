@@ -348,12 +348,13 @@ class Canvas(object):
         measured in degrees (360 is a full circle), start at 0 (3 o'clock)
         and increase *clockwise*.
 
-        .. code_block:: python
-                270
-              225  315
-            180      0
-              135  45
-                 90
+        Arc angle alignment reference:
+
+        #        270
+        #      225  315
+        #    180      0
+        #      135  45
+        #         90
 
         Keyword arguments:
 
@@ -621,7 +622,7 @@ class Canvas(object):
         """
         Pastes the supplied image onto the canvas, with optional
         coordinates. Otherwise, you can supply a string path to an image
-            that will be opened and pasted.
+        that will be opened and pasted.
 
         If ``coords`` is not supplied, the image will be pasted in the top left
         corner. ``coords`` can be a 2-tuple giving the upper left

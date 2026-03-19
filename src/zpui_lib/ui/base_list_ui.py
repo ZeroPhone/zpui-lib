@@ -146,7 +146,7 @@ class BaseListUIElement(BaseUIElement):
     @to_be_foreground
     def move_down(self):
         """ Moves the pointer one entry down, if possible.
-        |Is typically used as a callback from input event processing thread.
+        Is typically used as a callback from input event processing thread.
         """
         if self.pointer < (len(self.contents) - 1):
             logger.debug("moved down")
@@ -183,7 +183,7 @@ class BaseListUIElement(BaseUIElement):
     def move_up(self):
         """
         Moves the pointer one entry up, if possible.
-        |Is typically used as a callback from input event processing thread.
+        Is typically used as a callback from input event processing thread.
         """
         if self.pointer != 0:
             logger.debug("moved up")
@@ -313,7 +313,7 @@ class BaseListUIElement(BaseUIElement):
         """Processes contents for custom callbacks. Currently, only 'exit' calbacks are supported.
 
         If ``self.append_exit`` is set, it goes through the menu and removes every callback which either is ``self.deactivate`` or is just a string 'exit'.
-        |Then, it appends a single "Exit" entry at the end of menu contents. It makes dynamically appending entries to menu easier and makes sure there's only one "Exit" callback, at the bottom of the menu."""
+        Then, it appends a single "Exit" entry at the end of menu contents. It makes dynamically appending entries to menu easier and makes sure there's only one "Exit" callback, at the bottom of the menu."""
         if self.append_exit:
             # filtering possible duplicate exit entries
             for entry in self.contents:
@@ -404,9 +404,9 @@ class TextView(object):
 
     def get_displayed_text(self, contents):
         """Generates the displayed data for a character-based output device. The output of this function can be fed to the o.display_data function.
-        |Corrects last&first_displayed_entry pointers if necessary, then gets the currently displayed entries' numbers, renders each one
+        Corrects last&first_displayed_entry pointers if necessary, then gets the currently displayed entries' numbers, renders each one
         of them and concatenates them into one big list which it returns.
-        |Doesn't support partly-rendering entries yet."""
+        Doesn't support partly-rendering entries yet."""
         displayed_data = []
         full_entries_shown = self.get_entry_count_per_screen()
         entries_shown = min(len(contents), full_entries_shown)
@@ -585,7 +585,7 @@ class EightPtView(TextView):
 
     def get_displayed_image(self, cursor=True, cursor_type=""):
         """Generates the displayed data for a canvas-based output device. The output of this function can be fed to the o.display_image function.
-        |Doesn't support partly-rendering entries yet."""
+        Doesn't support partly-rendering entries yet."""
         c = Canvas(self.o)
         # Get the display-ready contents
         contents = self.el.get_displayed_contents()

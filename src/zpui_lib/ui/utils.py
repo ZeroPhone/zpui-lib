@@ -36,12 +36,14 @@ def to_be_foreground(func):
 def clamp(value, _min, _max):
     """
     Returns a value clamped between two bounds (inclusive)
+
     >>> clamp(17, 0, 100)
     17
     >>> clamp(-89, 0, 100)
     0
     >>> clamp(65635, 0, 100)
     100
+
     """
     return max(_min, min(value, _max))
 
@@ -56,6 +58,7 @@ def is_sequence_not_string(value):
 def modulo_list_index(value, _list):
     """
     Returns an always valid list index. Repeats the list circularly.
+
     >>> robots=['R2D2', 'C3PO', 'HAL9000']
     >>> robots[modulo_list_index(0, robots)]
     'R2D2'
@@ -63,6 +66,7 @@ def modulo_list_index(value, _list):
     'R2D2'
     >>> [robots[modulo_list_index(i, robots)] for i in range(10)]
     ['R2D2', 'C3PO', 'HAL9000', 'R2D2', 'C3PO', 'HAL9000', 'R2D2', 'C3PO', 'HAL9000', 'R2D2']
+
     """
     return value % len(_list)
 
@@ -71,6 +75,7 @@ def clamp_list_index(value, _list):
     """
     Returns a list index clamped to the bounds of the list.
     Useful to prevent iterating out of bounds, repeats the bounds values.
+
     >>> astronauts = ['Collins', 'Armstrong', 'Aldrin']
     >>> astronauts[clamp_list_index(0, astronauts)]
     'Collins'
@@ -80,6 +85,7 @@ def clamp_list_index(value, _list):
     'Aldrin'
     >>> astronauts[clamp_list_index(-666, astronauts)]
     'Collins'
+
     """
     return clamp(value, 0, len(_list) - 1)
 
@@ -112,6 +118,7 @@ def check_value_lock(func):
 class Chronometer(object):
     """
     This object measures time.
+
     >>> cron = Chronometer()
     >>> cron.active
     False
@@ -136,6 +143,7 @@ class Chronometer(object):
     >>> cron.update()
     >>> round(cron.elapsed, 1)
     1.0
+
     """
     def __init__(self):
         self.__active = False
@@ -199,11 +207,13 @@ class Chronometer(object):
 class Ticker(object):
     """
     This object returns the time elapsed between two calls to it's `tick()` function
+
     >>> ticker = Ticker()
     >>> sleep(1)
     >>> elapsed = ticker.tick()
     >>> round(elapsed, 1)  #rounded because time.sleep() is not that precise
     1.0
+
     """
     def __init__(self):
         self.__active = False
@@ -231,14 +241,17 @@ def fit_image_to_screen(image, o, resampling="BOX", fill_color="black"):
         * ``image``: A PIL image to be resized.
         * ``o``: output device object. Used to find the width and height of the screen.
         * ``resampling="BOX" (PIL.Image.BOX)``: PIL resampling algorithm to be used during resizing.
-        You can supply a string (to avoid importing PIL), or supply an algorithm enum variable (i.e. Image.BOX) directly.
-        See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters ."""
+          You can supply a string (to avoid importing PIL), or supply an algorithm enum variable (i.e. Image.BOX) directly.
+          See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters .
+
+    """
     if isinstance(resampling, basestring):
         resampling = getattr(Image, resampling)
     return fit_image_to_dims(image, o.width, o.height, resampling=resampling, fill_color=fill_color)
 
 def fit_image_to_dims(image, width, height, resampling=Image.BOX, fill_color = "black"):
-    """Fits a given image to fit on any sized screen whilst maintaining the aspect ratio.
+    """
+    Fits a given image to fit on any sized screen whilst maintaining the aspect ratio.
     Any remaining space is filled with borders. The resized image is returned as ``image``.
 
     Args:
@@ -247,7 +260,9 @@ def fit_image_to_dims(image, width, height, resampling=Image.BOX, fill_color = "
         * ``width``: target width.
         * ``height``: target height.
         * ``resampling=PIL.Image.BOX``: PIL resampling algorithm to be used during resizing.
-        See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters ."""
+          See https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters .
+
+    """
     orig_image = image
     image_width, image_height = image.size
     if height > image_height and width > image.width: # Checks if the screen dimensions are equal to the image size

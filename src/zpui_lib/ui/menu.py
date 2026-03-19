@@ -132,10 +132,12 @@ class Menu(BaseListUIElement):
 
     @to_be_foreground
     def select_entry(self, callback_number=1, entry_index=None):
-        """ Gets the currently specified entry's description from self.contents and executes the callback, if set.
-        |Is typically used as a callback from input event processing thread.
-        |After callback's execution is finished, sets the keymap again and refreshes the screen.
-        |If MenuExitException is returned from the callback, exits menu."""
+        """
+        Gets the currently specified entry's description from self.contents and executes the callback, if set.
+        Is typically used as a callback from input event processing thread.
+        After callback's execution is finished, sets the keymap again and refreshes the screen.
+        If MenuExitException is returned from the callback, exits menu.
+        """
         logger.debug("entry selected")
         self.to_background()
         if entry_index != None:
