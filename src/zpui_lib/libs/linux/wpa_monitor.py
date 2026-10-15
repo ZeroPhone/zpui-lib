@@ -49,9 +49,7 @@ class WpaMonitor():
         self.p.kill_process()
 
     def process_output(self, output):
-        #print(repr(output))
         lines = output.split('\r\n')
-        #print(lines)
         for line in lines:
           try:
             prompt_marker = "> "
@@ -63,10 +61,9 @@ class WpaMonitor():
                 try:
                     self.parse_msg(line)
                 except:
-                    traceback.print_exc()
-                    raise WPAOException("can't parse", line)
+                    logger.exception(f"Failed to parse {repr(line)}!")
             else:
-                print(repr(line))
+                logger.info(f"Unparsed wpa_cli line {repr(line)}")
           except:
               logger.exception("Exception while processing output from wpa_cli")
 
@@ -97,7 +94,7 @@ class WpaMonitor():
             pass # We can't yet parse this message
         if status["code"] and not status["code"].startswith("CTRL-EVENT-SCAN") \
           and not status["code"].startswith("CTRL-EVENT-REGDOM"):
-            print(status)
+            logger.info(f"Status: {status}")
         self.add_status(status)
         if self.event_cb:
           try:
