@@ -4,6 +4,7 @@ import pty
 import threading
 import subprocess
 import time
+from copy import copy
 from select import select
 
 class ProHelper:
