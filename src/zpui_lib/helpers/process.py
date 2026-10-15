@@ -18,10 +18,12 @@ class ProHelper:
     default_read_size = 1024
     encoding = "utf-8"
 
-    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, popen_kwargs = None, lc_all="C", convert_output=True):
+    def __init__(self, command, shell = False, use_terminal = True, output_callback = None, cwd = None, \
+                 popen_kwargs = None, lc_all="C", convert_output=True, env=None):
         self.command = command
         self.shell = shell
         self.cwd = cwd
+        self.env = env if env else {}
         self.use_terminal = use_terminal
         self.output_callback = output_callback
         self.popen_kwargs = popen_kwargs if popen_kwargs else {}
@@ -37,7 +39,7 @@ class ProHelper:
         """
         if self.use_terminal:
             self.terminal, self.s = pty.openpty()
-            env = {}
+            env = copy(self.env)
             if self.lc_all: env["LC_ALL"] = self.lc_all
             self.process = subprocess.Popen(self.command, stdin=self.s, stdout=self.s, stderr=self.s, shell=self.shell, cwd=self.cwd, env=env, close_fds=True, **self.popen_kwargs)
         else:
@@ -171,7 +173,10 @@ class ProHelper:
         The default function used for processing output from the command.
         For now, it simply sends the data to ``sys.stdout``.
         """
-        sys.stdout.write(data.decode("ascii"))
+        if isinstance(data, bytes):
+            sys.stdout.write(data.decode("ascii"))
+        else:
+            sys.stdout.write(data)
         sys.stdout.flush()
 
     def kill_process(self):
