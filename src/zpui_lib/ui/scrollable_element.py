@@ -128,7 +128,7 @@ class TextReader(object):
     """A vertical-scrollable ui element used to read text"""
 
     # todo : documentation
-    def __init__(self, text, i, o, name="TextReader", sleep_interval=1, scroll_speed=2, autohide_scrollbars=True, fade_time=1,
+    def __init__(self, text, i, o, name="TextReader", sleep_interval=0.1, scroll_speed=2, autohide_scrollbars=True, fade_time=1,
                  h_scroll=None):
         self.i = i
         self.o = o
