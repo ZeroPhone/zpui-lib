@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package zpui_api;
+
+// app loading from the CLI
+
+message AppLoadRequest {
+  string path = 1;
+  int32 parameters = 2;
+}
+
+message AppLoadReply {
+  int32 result = 1;
+  string info = 2;
+}
+
+service Loader {
+  rpc LoadApp (AppLoadRequest) returns (AppLoadReply) {}
+}
+
+// notification sending from the CLI
+
+message NotifyData {
+  int32 parameters = 1;
+  string data = 2;
+}
+
+message NotifyReply {
+  int32 result = 1;
+  string info = 2;
+}
+
+service NotifyReceiver {
+  rpc Send (NotifyData) returns (NotifyReply) {}
+}
