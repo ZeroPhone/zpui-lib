@@ -80,16 +80,18 @@ class Zone(object):
                 self.canvas = Canvas(MockOutput(**params))
                 self.clear_cache()
 
-    def update_image(self):
+    def update_image(self, limit=None, cache_bypass=False):
         # Checking the cache
         if self.caching:
-            if self.value in self.cache:
+            if self.value in self.cache and not cache_bypass:
                 return self.cache[self.value]
         # Not caching or not found - generating
+        args = [self.value]
         if self.i_pass_self:
-            image = self.image_cb(self, self.value)
-        else:
-            image = self.image_cb(self.value)
+            args = [self]+args
+        if self.trimmable:
+            args += [limit]
+        image = self.image_cb(*args)
         # If caching, storing
         if self.caching:
             self.cache[self.value] = copy(image)
@@ -180,6 +182,35 @@ class ZoneManager(object):
         return None # again, explicit None return, mostly for my own sake
         # as I try to figure out how I made "..." handling
 
+    def get_row_widths(self, row, limit):
+        if all([getattr(element, "trimmable", False) for element in row]):
+            # nothing trimmable, simple return
+            return [self.get_element_width(item) for item in row]
+        # at least one trimmable element
+        widths = []
+        for element in row:
+            if element in self.zones and getattr(self.zones[element], "trimmable", False):
+                widths.append(True)
+            else:
+                widths.append(self.get_element_width(element))
+            #breakpoint()
+        known_widths = [width for width in widths if isinstance(width, int)]
+        remainder = limit - sum(known_widths)
+        # not proportionate yet
+        width_per_trimmable = remainder // widths.count(True)
+        # for trimmable: try and render it to see how much of the screen it takes
+        #widths = [(width if width != True else width_per_trimmable)]
+        #print(widths)
+        for i, width in enumerate(widths):
+            #print(i, width, row[i])
+            if width == True:
+                zone_name = row[i]
+                self.zones[zone_name].image = self.zones[zone_name].update_image(limit=width_per_trimmable, cache_bypass=True)
+                # min() auto-trims what the code didnt catch:
+                widths[i] = min(self.zones[zone_name].get_image().width, width_per_trimmable)
+        #print(widths)
+        return widths
+
     @staticmethod
     def is_dummy_zone(name):
         return all([char == "." for char in name])
@@ -246,6 +277,7 @@ class ZoneManager(object):
                     if el is None:
                         self.row_heights[i] = spacing
         """
+        # I think this is commented out only because I didn't want to test it, as I don't have a multi-row zone setup now
         if row_heights != self.row_heights:
             # Row heights changed!
             logger.debug("Row heights changed! {} {}".format(row_heights, self.row_heights))
@@ -257,9 +289,9 @@ class ZoneManager(object):
         for i, row in enumerate(self.markup):
             #print(row)
             if row and self.row_heights[i] == row[-1]: # last item is row height, filtering out
-                item_widths = [self.get_element_width(item) for item in row[:-1]]
+                item_widths = self.get_row_widths(row[:-1], self.o.width)
             else:
-                item_widths = [self.get_element_width(item) for item in row]
+                item_widths = self.get_row_widths(row, self.o.width)
             #print(self.markup)
             #print(item_widths, self.item_widths)
             if item_widths != self.item_widths[i]:
