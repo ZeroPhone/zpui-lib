@@ -27,7 +27,7 @@ def to_be_foreground(func):
             data = (self.__class__.__name__, func.__name__, getattr(self, "name", None))
             if data not in to_be_foreground_warnings:
                 to_be_foreground_warnings.append(data)
-                logger.warning("{}.{} (UI el {}) was prevented from being executed " \
+                logger.info("{}.{} (UI el {}) was prevented from being executed " \
                                "by to_be_foreground!".format(*data) )
             return False
     return wrapper
