@@ -8,6 +8,23 @@ beepy_dir = "/sys/firmware/beepy/"
 preset_device = None
 known_devices = ["snowdive", "blepis", "beepy", "colorberry"]
 
+# a few colors for the onboard LED
+colors = {
+  "red":              (10,  0,  0),
+  "green":            ( 0, 10,  0),
+  "blue":             ( 0,  0, 10),
+  "purple":           (10,  0, 10),
+  "orange":           (15,  5,  0),
+  "safety-orange":    (15,  2,  0),
+  "sea":              ( 0, 10,  5),
+  "emerald":          ( 0, 10,  2),
+  "yellow":           (15, 10,  0),
+  "magenta":          (15,  0,  2),
+  "pink":             (15,  0,  5),
+  "salmon":           (15,  5,  5),
+  "off":              ( 0,  0,  0),
+}
+
 def detect_device():
     """Able to distinguish between snowdive/blepis/beepy - in the future."""
     if preset_device != None:
@@ -21,6 +38,20 @@ def set_device(device):
         logger.warning(f"Device {device} not known to the current version of the library!")
     preset_device = device
     return device in known_devices
+
+def set_device_from_platform(platform):
+    if "snowdive" in platform:
+        set_device("snowdive")
+        return "snowdive"
+    elif "blepis" in platform:
+        set_device("blepis")
+        return "blepis"
+    elif "colorberry" in platform:
+        set_device("colorberry")
+        return "colorberry"
+    else:
+        set_device("beepy")
+        return "beepy"
 
 def driver_loaded():
     """
